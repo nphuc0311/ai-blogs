@@ -1,6 +1,7 @@
 ---
 title: "The Future of Large Language Models: What's Next?"
 date: "2024-06-20"
+author: "Alan Turing"
 description: "An exploration of upcoming trends in LLM technology, including multi-modality, improved reasoning, and on-device processing."
 tags: "llm, future tech, ai, machine learning"
 categories: "AI Research, Technology"

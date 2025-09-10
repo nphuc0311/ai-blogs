@@ -1,6 +1,7 @@
 ---
 title: "How AI is Revolutionizing Healthcare"
 date: "2024-07-01"
+author: "Dr. Ada Lovelace"
 description: "Discover how Artificial Intelligence is transforming medical diagnostics, personalizing treatment plans, and streamlining drug discovery."
 tags: "ai, healthcare, medical tech, innovation"
 categories: "AI Applications, Health"

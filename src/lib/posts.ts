@@ -7,11 +7,18 @@ const postsDirectory = path.join(process.cwd(), 'src/posts');
 export type PostData = {
   slug: string;
   title: string;
+  author: string;
   date: string;
   description: string;
   tags: string[];
   categories: string[];
   content: string;
+};
+
+export type Heading = {
+  text: string;
+  slug: string;
+  level: number;
 };
 
 // A simple frontmatter parser
@@ -54,7 +61,7 @@ export function getSortedPostsData(): PostData[] {
       return {
         slug,
         content,
-        ...(data as { title: string; date: string; description: string; tags: string[]; categories: string[] }),
+        ...(data as { title: string; author: string; date: string; description: string; tags: string[]; categories: string[] }),
       };
     });
 
@@ -88,6 +95,30 @@ export function getPostData(slug: string): PostData {
   return {
     slug,
     content,
-    ...(data as { title: string; date: string; description: string; tags: string[]; categories: string[] }),
+    ...(data as { title: string; author: string; date: string; description: string; tags: string[]; categories: string[] }),
   };
+}
+
+function slugify(text: string): string {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-');
+}
+
+export function parseHeadings(content: string): Heading[] {
+  const headingRegex = /^(##|###) (.*)/gm;
+  const headings: Heading[] = [];
+  let match;
+  while ((match = headingRegex.exec(content)) !== null) {
+    headings.push({
+      level: match[1].length,
+      text: match[2].trim(),
+      slug: slugify(match[2].trim()),
+    });
+  }
+  return headings;
 }

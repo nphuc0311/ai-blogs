@@ -1,14 +1,24 @@
 import 'server-only';
 
+function slugify(text: string): string {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-');
+}
+
 // Basic markdown-to-HTML conversion
 function markdownToHtml(markdown: string): string {
   let html = markdown
     // Blockquotes
     .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
-    // Headings
-    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    // Headings with IDs
+    .replace(/^(###) (.*$)/gim, (_, level, text) => `<h3 id="${slugify(text)}">${text}</h3>`)
+    .replace(/^(##) (.*$)/gim, (_, level, text) => `<h2 id="${slugify(text)}">${text}</h2>`)
+    .replace(/^(#) (.*$)/gim, (_, level, text) => `<h1 id="${slugify(text)}">${text}</h1>`)
     // Unordered lists
     .replace(/^\* (.*$)/gim, '<ul><li>$1</li></ul>')
     .replace(/^\- (.*$)/gim, '<ul><li>$1</li></ul>')
