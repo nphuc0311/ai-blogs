@@ -1,0 +1,9 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="hsl(207, 70%, 53.1%)">
+  <style>
+    .heavy {
+      font: bold 80px sans-serif;
+    }
+  </style>
+  <text x="0" y="75" class="heavy">A</text>
+  <text x="45" y="75" class="heavy">C</text>
+</svg>
