@@ -1,3 +1,4 @@
+import 'server-only';
 import fs from 'fs';
 import path from 'path';
 
@@ -40,7 +41,7 @@ function parseFrontmatter(fileContents: string): { data: any; content: string } 
 }
 
 
-export function getSortedPostsData() {
+export function getSortedPostsData(): PostData[] {
   const fileNames = fs.readdirSync(postsDirectory);
   const allPostsData = fileNames
     .filter(fileName => fileName.endsWith('.md'))
@@ -48,10 +49,11 @@ export function getSortedPostsData() {
       const slug = fileName.replace(/\.md$/, '');
       const fullPath = path.join(postsDirectory, fileName);
       const fileContents = fs.readFileSync(fullPath, 'utf8');
-      const { data } = parseFrontmatter(fileContents);
+      const { data, content } = parseFrontmatter(fileContents);
 
       return {
         slug,
+        content,
         ...(data as { title: string; date: string; description: string; tags: string[]; categories: string[] }),
       };
     });

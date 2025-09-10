@@ -1,5 +1,17 @@
 import { getSortedPostsData } from '@/lib/posts';
-import { BlogPostCard } from '@/components/BlogPostCard';
+import { PostList } from '@/components/PostList';
+import { Suspense } from 'react';
+import { LoaderCircle } from 'lucide-react';
+
+function PostListFallback() {
+  return (
+    <div className="flex min-h-[400px] flex-col items-center justify-center gap-4">
+      <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
+      <p className="text-muted-foreground">Loading posts...</p>
+    </div>
+  );
+}
+
 
 export default function Home() {
   const allPostsData = getSortedPostsData();
@@ -11,22 +23,13 @@ export default function Home() {
           AI Chronicle
         </h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Exploring the frontiers of Artificial Intelligence. Insights, tutorials, and discussions on the latest in AI/ML.
+          Exploring the frontiers of Artificial Intelligence. Insights,
+          tutorials, and discussions on the latest in AI/ML.
         </p>
       </header>
-
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {allPostsData.map(({ slug, title, date, description, tags }) => (
-          <BlogPostCard
-            key={slug}
-            slug={slug}
-            title={title}
-            date={date}
-            description={description}
-            tags={tags}
-          />
-        ))}
-      </div>
+      <Suspense fallback={<PostListFallback />}>
+        <PostList posts={allPostsData} />
+      </Suspense>
     </div>
   );
 }
