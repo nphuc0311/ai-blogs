@@ -13,12 +13,6 @@ export function Header() {
             </span>
           </Link>
           <nav className="flex items-center gap-6 text-sm">
-            <Link
-              href="/archive"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              Archive
-            </Link>
           </nav>
         </div>
       </div>
