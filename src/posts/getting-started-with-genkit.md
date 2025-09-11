@@ -3,7 +3,7 @@ title: "Getting Started with Genkit for AI-Powered Applications"
 date: "2024-05-15"
 author: "Grace Hopper"
 description: "A beginner's guide to setting up Genkit, an open-source framework from Google for building production-ready AI applications with ease."
-tags: "genkit, ai, development, tutorial, javascript"
+tags: genkit, ai, development, tutorial, javascript
 categories: "Frameworks, AI Development"
 ---
 

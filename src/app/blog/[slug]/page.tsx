@@ -12,8 +12,9 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
   try {
-    const post = getPostData(params.slug);
+    const post = getPostData(slug);
     return {
       title: post.title,
       description: post.description,
@@ -30,10 +31,11 @@ export function generateStaticParams() {
   return getAllPostSlugs();
 }
 
-export default function PostPage({ params }: Props) {
+export default async function PostPage({ params }: Props) {
+  const { slug } = await params;
   let post;
   try {
-    post = getPostData(params.slug);
+    post = getPostData(slug);
   } catch (error) {
     notFound();
   }

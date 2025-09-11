@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import 'prismjs/themes/prism-tomorrow.css'; // Prism syntax highlight
 import { cn } from '@/lib/utils';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -10,7 +11,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
   title: {
-    default: 'AI Chronicle',
+    default: 'AI Viet Nam',
     template: '%s | AI Chronicle',
   },
   description: 'A modern website hosting multiple AI-related blogs for knowledge sharing.',
