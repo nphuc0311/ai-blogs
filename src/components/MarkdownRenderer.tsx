@@ -1,5 +1,6 @@
-import 'server-only';
 import Prism from 'prismjs';
+import parse, { domToReact } from "html-react-parser";
+import Image from 'next/image';
 import './MarkdownRenderer.css';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-typescript';
@@ -59,17 +60,20 @@ function markdownToHtml(markdown: string): string {
   html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
   html = html.replace(/__(.*?)__/gim, '<strong>$1</strong>');
   html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
-  html = html.replace(/_(.*?)_/gim, '<em>$1</em>');
+  // html = html.replace(/_(.*?)_/gim, '<em>$1</em>');
+  html = html.replace(/(^|[\s])_(.+?)_(?=[\s]|$)/gim, '$1<em>$2</em>');
   html = html.replace(/~~(.*?)~~/gim, '<del>$1</del>');
 
   // --- Inline code
   html = html.replace(/`([^`]+)`/gim, '<code>$1</code>');
 
+    // --- Images
+  html = html.replace(/!\[([^\]]+)\]\(([^)]+)\)/gim, (_, alt, src) => {
+    return `<next-img alt="${alt}" src="${src}" />`;
+  });
+
   // --- Links
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2">$1</a>');
-
-  // --- Images
-  html = html.replace(/!\[([^\]]+)\]\(([^)]+)\)/gim, '<img alt="$1" src="$2" />');
 
   // --- Paragraphs
   html = html
@@ -90,8 +94,25 @@ export function MarkdownRenderer({ content }: { content: string }) {
   const htmlContent = markdownToHtml(content);
 
   return (
-    <div className="prose dark:prose-invert">
-      <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+    <div className="prose dark:prose-invert max-w-none">
+      {parse(htmlContent, {
+        replace: (domNode: any) => {
+          if (domNode.name === "next-img") {
+            const { src, alt } = domNode.attribs;
+            return (
+              <div className="my-4">
+                <Image
+                  src={src}
+                  alt={alt}
+                  width={800}
+                  height={400}
+                  className="rounded-md shadow-md object-contain w-full h-auto"
+                />
+              </div>
+            );
+          }
+        },
+      })}
     </div>
   );
 }

@@ -53,7 +53,7 @@ gr.Microphone()   # Ghi âm từ micro của người dùng
 
 ### Output
 
-Output là thành phần mà Gradio hiển thị kết quả từ mô hình đã được training. Bốn nhóm output phổ biến:
+Output là thành phần mà Gradio hiển thị kết quả từ mô hình đã được training. Các nhóm output phổ biến:
 
 #### 1. Dạng văn bản
 
@@ -81,7 +81,7 @@ Gradio có 2 cách chính để xây dựng giao diện với mức độ kiểm
 
 ### 1. Interface
 
-Cách đơn giản và nhanh chóng, chỉ cần định nghĩa input, output và hàm dự đoán.
+Là cách đơn giản và nhanh chóng nhất vì chỉ cần định nghĩa input và output cùng với hàm dự đoán là Gradio sẽ tự động tạo ra một giao diện cho người dùng có thể tương tác.
 
 ```python
 import gradio as gr
@@ -98,17 +98,17 @@ demo = gr.Interface(
 demo.launch(share=True)
 ```
 
-* Hàm `greet()` là bộ xử lý chính
-* Input: tên (text) và slider chọn số lần in lời chào
-* Output: dạng text
+* Hàm **`greet()`** là bộ xử lý chính.
+* Input đầu vào là tên (dạng text) và 1 slider cho phép người dùng chọn lời chào được in ra bao nhiêu lần.
+* Output là dạng text.
 
 Kết quả:
 
-![image.png](attachment:6af7a9d7-3bbf-44b0-938e-168b3616bd1a\:image.png)
+![demo 1](https://res.cloudinary.com/daijlu58e/image/upload/gradio_1_htxnhu.png)
 
 ### 2. Blocks
 
-Blocks cho phép sắp xếp nhiều thành phần và xác định tương tác giữa chúng:
+Block cho phép sắp xếp nhiều thành phần và nhóm chúng theo bố cục tuỳ chỉnh cũng như xác định tương tác giữa chúng, vì vậy nên phức tạp hơn so với Interface.
 
 ```python
 import gradio as gr
@@ -126,8 +126,33 @@ with gr.Blocks() as demo:
 
 demo.launch(share=True)
 ```
+Kết quả:
+![demo 2](https://res.cloudinary.com/daijlu58e/image/upload/gradio_2_kph04b.png)
 
-#### Bố cục Rows và Columns
+Với block ta có thể sắp xếp bố cục với 2 thành phần cơ bản là **Row** và **Column**, ví dụ nếu muốn ô nhập tên và slider chọn intensity cùng 1 dòng, ta có thể viết: 
+
+```python
+import gradio as gr
+
+def greet(name, intensity):
+    return "\n".join(["Hello, " + name] * int(intensity))
+
+with gr.Blocks() as demo:
+    name_input = gr.Textbox(label="Enter your name")
+    intensity = gr.Slider(minimum=1, maximum=20, step=2)
+    greet_button = gr.Button("Send hello")
+    greet_output = gr.TextArea(label="Greeting")
+
+    greet_button.click(greet, inputs=[name_input, intensity], outputs=greet_output)
+
+demo.launch(share=True)
+```
+Kết quả:
+
+![demo 3](https://res.cloudinary.com/daijlu58e/image/upload/gradio_3_idbbk7.png)
+
+
+Nếu muốn để input nhập tên và slider chọn intensity thành một cột và cột bên cạnh là output, ta sử dụng gr.Column(), lưu ý rằng ta cần khởi tạo gr.Row() để chứa các cột muốn xếp thành một hàng trước nếu không mỗi cột sẽ một hàng và không khác biệt gì so với gr.Row().
 
 ```python
 import gradio as gr
@@ -151,11 +176,12 @@ demo.launch(share=True)
 
 Kết quả:
 
-![image.png](attachment\:fa3c6535-d3a3-4454-81c2-30ffe1636dea\:image.png)
+![demo 4](https://res.cloudinary.com/daijlu58e/image/upload/gradio_4_hdxobh.png)
+
 
 ## III. Triển khai Image Segmentation với U-net bằng Gradio
 
-Ví dụ triển khai mô hình U-net trên tập Oxford-iiit-pet:
+Mình tiến hành cài đặt mô hình U-net trên tập dữ liệu **Oxford-iiit-pet** và lưu mô hình tại **model.pth** và sử dụng Gradio để tạo giao diện.
 
 ```python
 import gradio as gr
@@ -233,21 +259,20 @@ if __name__ == "__main__":
 ```
 
 Link triển khai web trên HuggingFace Spaces: [Pet Segmentation Gradio](https://huggingface.co/spaces/vngclinh/pet-segmentation-gradio)
+![demo 5](https://res.cloudinary.com/daijlu58e/image/upload/gradio_5_ghtxzq.png)
 
 Demo kết quả:
 
-![image.png](attachment\:e190fe1a-6bb7-42a8-88b3-92cbcea8ccee\:image.png)
+![demo 6](https://res.cloudinary.com/daijlu58e/image/upload/gradio_6_q0gewg.png)
 
 ### Giải thích các thành phần Gradio
 
-* **`gr.Blocks()`**: Container chính, thiết kế giao diện dạng khối
-* **`gr.Markdown()`**: Hiển thị tiêu đề hoặc văn bản bằng Markdown
+* **`gr.Blocks()`**: Đây là container chính trong Gradio, cho phép bạn thiết kế giao diện web theo dạng khối (blocks).
+* **`gr.Markdown()`**: Hiển thị tiêu đề hoặc văn bản trên giao diện bằng Markdown, ở đây dùng để đặt tên ứng dụng.
 * **`gr.Row()` và `gr.Column()`**: Sắp xếp phần tử theo hàng hoặc cột
-* **`gr.Image(type="pil")`**: Upload/hiển thị ảnh dưới dạng PIL
-* **`gr.Button()`**: Tạo nút bấm để gọi hàm xử lý
-* **`gr.Textbox(interactive=False)`**: Hiển thị thông tin không chỉnh sửa được
-* **`gr.File()`**: Cho phép tải file kết quả
-* **`btn.click(fn=..., inputs=..., outputs=...)`**: Event binding khi người dùng nhấn nút
-* **`demo.launch(share=True)`**: Chạy ứng dụng với link public tạm thời
-
----
+* **`gr.Image(type="pil")`**: Upload/hiển thị ảnh dưới dạng PIL, `label` dùng để hiển thị tên trên giao diện.
+* **`gr.Button()`**: Tạo nút bấm để gọi hàm xử lý, ở đây hàm `process_image` sẽ được gọi.
+* **`gr.Textbox(interactive=False)`**: Hiển thị thông tin không chỉnh sửa được.
+* **`gr.File()`**: Cho phép tải file kết quả.
+* **`btn.click(fn=..., inputs=..., outputs=...)`**: Event binding khi người dùng nhấn nút.
+* **`demo.launch(share=True)`**: Chạy ứng dụng với link public tạm thời.
