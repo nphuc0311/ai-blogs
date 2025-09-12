@@ -1,6 +1,15 @@
 import 'server-only';
+import Prism from 'prismjs';
+import './MarkdownRenderer.css';
+import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-typescript';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-bash';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-markdown';
+import 'prismjs/themes/prism-tomorrow.css';
 
-// Chuyển text thành slug dùng cho id
+// Convert text to slug for IDs
 function slugify(text: string): string {
   return text
     .toString()
@@ -11,18 +20,21 @@ function slugify(text: string): string {
     .replace(/\-\-+/g, '-');
 }
 
-// Hàm convert Markdown → HTML
+// Convert Markdown to HTML
 function markdownToHtml(markdown: string): string {
   let html = markdown;
 
   // --- Code block (```)
   html = html.replace(/```(\w*)\n([\s\S]*?)```/gim, (_, lang, code) => {
-    const language = lang || '';
+    const language = lang?.toLowerCase() || 'text';
     const escaped = code
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
-    return `<pre><code class="language-${language}">${escaped}</code></pre>`;
+    const highlighted = language !== 'text' 
+      ? Prism.highlight(escaped, Prism.languages[language] || Prism.languages.text, language)
+      : escaped;
+    return `<pre class="code-block"><code class="language-${language}">${highlighted}</code></pre>`;
   });
 
   // --- Blockquotes

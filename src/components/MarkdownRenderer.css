@@ -1,0 +1,75 @@
+/* Code block container */
+.code-block {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: #000000;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 1px solid #333333;
+}
+
+/* Code inside pre */
+.code-block code {
+  display: block;
+  padding: 0;
+  background: none;
+  white-space: pre;
+  tab-size: 2;
+}
+
+/* Token colors - Python-focused theme */
+.token.keyword {
+  color: #ff79c6; /* Python keywords like def, class, import - Bright pink */
+}
+
+.token.function {
+  color: #50fa7b; /* Function names - Bright green */
+}
+
+.token.string {
+  color: #f1fa8c; /* String literals - Light yellow */
+}
+
+.token.comment {
+  color: #6272a4; /* Comments - Muted blue */
+}
+
+.token.number {
+  color: #bd93f9; /* Numeric literals - Purple */
+}
+
+.token.builtin {
+  color: #8be9fd; /* Python built-in functions - Cyan */
+}
+
+.token.class-name {
+  color: #8be9fd; /* Class names - Cyan */
+}
+
+.token.operator {
+  color: #ff79c6; /* Operators - Pink */
+}
+
+.token.punctuation {
+  color: #f8f8f2; /* Punctuation - Light gray */
+}
+
+/* Language badge */
+.code-block::before {
+  content: attr(class);
+  position: absolute;
+  top: 0;
+  right: 1rem;
+  transform: translateY(-50%);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  background-color: #282a36;
+  color: #f8f8f2;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  border: 1px solid #44475a;
+}

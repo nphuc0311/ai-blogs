@@ -90,10 +90,12 @@
     @apply border-l-4 border-accent pl-4 italic text-muted-foreground my-4;
   }
   .prose code {
-    @apply bg-muted text-muted-foreground rounded-sm px-1.5 py-1 font-mono text-sm;
+    @apply font-mono text-sm;
   }
   .prose pre {
-    @apply bg-muted p-4 rounded-md overflow-x-auto;
+    @apply p-4 rounded-md overflow-x-auto;
+    background-color: hsl(0 0% 0%); /* nền đen */
+    color: hsl(210 40% 98%);        /* chữ sáng */
   }
   .prose pre code {
     @apply bg-transparent p-0;
