@@ -1,7 +1,7 @@
 ---
 title: "Hướng dẫn sử dụng Gradio để xây dựng ứng dụng AI tương tác"
-date: "2025-09-11"
-author: "Phúc Nguyễn"
+date: "2025-09-06"
+author: "Vũ Ngọc Linh"
 description: "Hướng dẫn cơ bản về Gradio, một thư viện Python mã nguồn mở giúp tạo website và bản demo tương tác cho mô hình AI mà không cần nhiều kiến thức front-end."
 tags: gradio, ai, python, tutorial, web
 categories: M04W01

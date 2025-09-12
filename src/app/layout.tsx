@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 export const metadata: Metadata = {
   title: {
     default: 'AI Viet Nam',
-    template: '%s | AI Chronicle',
+    template: '%s | AI Viet Nam',
   },
   description: 'A modern website hosting multiple AI-related blogs for knowledge sharing.',
 };

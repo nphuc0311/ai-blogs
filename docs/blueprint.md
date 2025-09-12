@@ -1,4 +1,4 @@
-# **App Name**: AI Chronicle
+# **App Name**: AI Viet Nam
 
 ## Core Features:
 
