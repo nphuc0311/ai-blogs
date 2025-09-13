@@ -69,7 +69,7 @@ function markdownToHtml(markdown: string): string {
 
     // --- Images
   html = html.replace(/!\[([^\]]+)\]\(([^)]+)\)/gim, (_, alt, src) => {
-    return `<next-img alt="${alt}" src="${src}" />`;
+    return `<div><next-img alt="${alt}" src="${src}" /></div>`;
   });
 
   // --- Links
@@ -79,7 +79,7 @@ function markdownToHtml(markdown: string): string {
   html = html
     .split(/\n\n+/)
     .map(p => {
-      if (p.match(/<\/?(h[1-6]|ul|ol|blockquote|li|pre|img|code|a)/)) {
+      if (p.match(/<\/?(h[1-6]|ul|ol|blockquote|li|pre|img|code|a|div)/)) {
         return p;
       }
       return p ? `<p>${p.replace(/\n/g, '<br/>')}</p>` : '';
@@ -99,6 +99,10 @@ export function MarkdownRenderer({ content }: { content: string }) {
         replace: (domNode: any) => {
           if (domNode.name === "next-img") {
             const { src, alt } = domNode.attribs;
+            if (!src || !alt) {
+              console.error("Missing src or alt attribute in next-img tag", domNode.attribs);
+              return null; // Skip rendering this tag
+            }
             return (
               <div className="my-4">
                 <Image
