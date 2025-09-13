@@ -1,6 +1,9 @@
 import Prism from 'prismjs';
 import parse, { domToReact } from "html-react-parser";
 import Image from 'next/image';
+import katex from "katex";
+import "katex/dist/katex.min.css";
+
 import './MarkdownRenderer.css';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-typescript';
@@ -21,6 +24,19 @@ function slugify(text: string): string {
     .replace(/\-\-+/g, '-');
 }
 
+// Render LaTeX bằng KaTeX
+function renderMath(expr: string, displayMode = false): string {
+  try {
+    return katex.renderToString(expr, {
+      throwOnError: false,
+      displayMode,
+    });
+  } catch (err) {
+    console.error("KaTeX render error:", err);
+    return expr;
+  }
+}
+
 // Convert Markdown to HTML
 function markdownToHtml(markdown: string): string {
   let html = markdown;
@@ -36,6 +52,16 @@ function markdownToHtml(markdown: string): string {
       ? Prism.highlight(escaped, Prism.languages[language] || Prism.languages.text, language)
       : escaped;
     return `<pre class="code-block"><code class="language-${language}">${highlighted}</code></pre>`;
+  });
+
+  // --- Math block $$
+  html = html.replace(/\$\$([\s\S]+?)\$\$/g, (_, expr) => {
+    return `<div class="math-block">${renderMath(expr, true)}</div>`;
+  });
+
+  // --- Inline math $
+  html = html.replace(/\$(.+?)\$/g, (_, expr) => {
+    return `<span class="math-inline">${renderMath(expr, false)}</span>`;
   });
 
   // --- Blockquotes
@@ -67,7 +93,7 @@ function markdownToHtml(markdown: string): string {
   // --- Inline code
   html = html.replace(/`([^`]+)`/gim, '<code>$1</code>');
 
-    // --- Images
+  // --- Images
   html = html.replace(/!\[([^\]]+)\]\(([^)]+)\)/gim, (_, alt, src) => {
     return `<div><next-img alt="${alt}" src="${src}" /></div>`;
   });
@@ -79,7 +105,7 @@ function markdownToHtml(markdown: string): string {
   html = html
     .split(/\n\n+/)
     .map(p => {
-      if (p.match(/<\/?(h[1-6]|ul|ol|blockquote|li|pre|img|code|a|div)/)) {
+      if (p.match(/<\/?(h[1-6]|ul|ol|blockquote|li|pre|img|code|a|div|span)/)) {
         return p;
       }
       return p ? `<p>${p.replace(/\n/g, '<br/>')}</p>` : '';
