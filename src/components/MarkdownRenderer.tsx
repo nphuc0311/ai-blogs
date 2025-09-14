@@ -39,19 +39,19 @@ function renderMath(expr: string, displayMode = false): string {
 
 // Convert Markdown to HTML
 function markdownToHtml(markdown: string): string {
-  let html = markdown;
+  let html = markdown || '';
 
-  // --- Code block (```)
+  // --- Code block (```) — highlight and produce <pre><code>
   html = html.replace(/```(\w*)\n([\s\S]*?)```/gim, (_, lang, code) => {
-    const language = lang?.toLowerCase() || 'text';
+    const language = (lang || 'text').toLowerCase();
     const escaped = code
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
-    const highlighted = language !== 'text' 
+    const highlighted = language !== 'text'
       ? Prism.highlight(escaped, Prism.languages[language] || Prism.languages.text, language)
       : escaped;
-    return `<pre class="code-block"><code class="language-${language}">${highlighted}</code></pre>`;
+    return `<pre class="code-block" data-lang="${language}"><code class="language-${language}">${highlighted}</code></pre>`;
   });
 
   // --- Math block $$
@@ -59,64 +59,138 @@ function markdownToHtml(markdown: string): string {
     return `<div class="math-block">${renderMath(expr, true)}</div>`;
   });
 
-  // --- Inline math $
-  html = html.replace(/\$(.+?)\$/g, (_, expr) => {
+  // --- Inline math $ (avoid escaped \$)
+  html = html.replace(/(?<!\\)\$(.+?)\$/g, (_, expr) => {
     return `<span class="math-inline">${renderMath(expr, false)}</span>`;
   });
 
-  // --- Blockquotes
-  html = html.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>');
-
-  // --- Headings h1 → h6
+  // --- Headings (h1..h6)
   for (let i = 6; i >= 1; i--) {
     const regex = new RegExp(`^${'#'.repeat(i)} (.*$)`, 'gim');
     html = html.replace(regex, (_, text) => `<h${i} id="${slugify(text)}">${text}</h${i}>`);
   }
 
-  // --- Unordered lists
+  // --- Blockquotes
+  html = html.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>');
+
+  // --- Lists (simple)
   html = html.replace(/^\* (.*$)/gim, '<ul><li>$1</li></ul>');
-  html = html.replace(/^\- (.*$)/gim, '<ul><li>$1</li></ul>');
-  html = html.replace(/<\/ul>\n<ul>/gim, ''); // Merge consecutive lists
-
-  // --- Ordered lists
+  html = html.replace(/^- (.*$)/gim, '<ul><li>$1</li></ul>');
+  html = html.replace(/<\/ul>\n<ul>/gim, '');
   html = html.replace(/^\d+\. (.*$)/gim, '<ol><li>$1</li></ol>');
-  html = html.replace(/<\/ol>\n<ol>/gim, ''); // Merge consecutive lists
+  html = html.replace(/<\/ol>\n<ol>/gim, '');
 
-  // --- Bold, Italic, Strikethrough
+  // --- Inline formatting
   html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
   html = html.replace(/__(.*?)__/gim, '<strong>$1</strong>');
   html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
-  // html = html.replace(/_(.*?)_/gim, '<em>$1</em>');
   html = html.replace(/(^|[\s])_(.+?)_(?=[\s]|$)/gim, '$1<em>$2</em>');
   html = html.replace(/~~(.*?)~~/gim, '<del>$1</del>');
-
-  // --- Inline code
   html = html.replace(/`([^`]+)`/gim, '<code>$1</code>');
 
-  // --- Images with caption (alt text as caption)
+  // --- Images
   html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/gim, (_, alt, src) => {
     return `<figure class="image-block">
               <img alt="${alt}" src="${src}" class="rounded-md shadow-md object-contain w-full h-auto" />
-              ${alt ? `<figcaption class="caption">${alt}</figcaption>` : ""}
+              ${alt ? `<figcaption class="caption">${alt}</figcaption>` : ''}
             </figure>`;
   });
 
   // --- Links
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2">$1</a>');
 
-  // --- Paragraphs
+  // --- Tables: scan lines and convert table blocks robustly
+  const lines = html.split(/\r?\n/);
+  const outLines: string[] = [];
+  let i = 0;
+
+  const isSeparatorLine = (s: string) => {
+    // line made of pipes, spaces, colons, dashes (e.g. |---|:---:|---|)
+    return /^\s*\|?\s*[:\-]+\s*(\|\s*[:\-]+\s*)*\|?\s*$/.test(s);
+  };
+
+  const splitCells = (line: string) => {
+    const cells = line.split('|').map(c => c.trim());
+    // remove empty leading/trailing cell if due to leading/trailing | 
+    if (cells.length > 0 && cells[0] === '') cells.shift();
+    if (cells.length > 0 && cells[cells.length - 1] === '') cells.pop();
+    return cells;
+  };
+
+  while (i < lines.length) {
+    const line = lines[i];
+    const next = lines[i + 1] ?? '';
+
+    // detect a header line (contains |) and next line is separator
+    if (line.includes('|') && isSeparatorLine(next)) {
+      const headerLine = line;
+      const bodyLines: string[] = [];
+
+      i += 2; // skip header + separator
+      // collect following lines that look like table rows (contain |) until a blank line or non-pipe line
+      while (i < lines.length && lines[i].trim() !== '' && (lines[i].includes('|') || /^\s*$/.test(lines[i]) === false)) {
+        // stop when the line obviously is not a table row: it should contain '|' or be non-empty but we still check presence of '|'
+        if (!lines[i].includes('|')) break;
+        bodyLines.push(lines[i]);
+        i++;
+      }
+
+      // build HTML table
+      const headers = splitCells(headerLine);
+      const headerHtml = headers.map(h => `<th>${h}</th>`).join('');
+      const rowsHtml = bodyLines
+        .map(r => {
+          const cells = splitCells(r);
+          const cellHtml = cells.map(c => `<td>${c}</td>`).join('');
+          return `<tr>${cellHtml}</tr>`;
+        })
+        .join('');
+      const tableHtml = `<table><thead><tr>${headerHtml}</tr></thead><tbody>${rowsHtml}</tbody></table>`;
+
+      outLines.push(tableHtml);
+      continue; // continue main loop (i already points to first non-table line)
+    }
+
+    // not a table start — just push the original line
+    outLines.push(line);
+    i++;
+  }
+
+  html = outLines.join('\n');
+
+  // --- Paragraphs (protect block-level elements so split won't break them)
+  const protectedBlocks: Record<string, string> = {};
+  let blockCounter = 0;
+  const stash = (match: string) => {
+    const key = `@@BLOCK_${blockCounter++}@@`;
+    protectedBlocks[key] = match;
+    return key;
+  };
+
+  html = html.replace(/<pre[\s\S]*?<\/pre>/gim, stash);
+  html = html.replace(/<table[\s\S]*?<\/table>/gim, stash);
+  html = html.replace(/<figure[\s\S]*?<\/figure>/gim, stash);
+  html = html.replace(/<div class="math-block"[\s\S]*?<\/div>/gim, stash);
+
   html = html
     .split(/\n\n+/)
     .map(p => {
-      if (p.match(/<\/?(h[1-6]|ul|ol|blockquote|li|pre|img|code|a|div|span)/)) {
+      if (p.match(/<\/?(h[1-6]|ul|ol|blockquote|li|pre|img|code|a|div|span|table|figure|thead|tbody|tr|td|th)/i)) {
         return p;
       }
       return p ? `<p>${p.replace(/\n/g, '<br/>')}</p>` : '';
     })
-    .join('');
+    .join('\n\n');
+
+  // restore protected blocks
+  Object.keys(protectedBlocks).forEach((key) => {
+    html = html.replace(key, protectedBlocks[key]);
+  });
 
   return html;
 }
+
+
 
 // --- Component MarkdownRenderer
 export function MarkdownRenderer({ content }: { content: string }) {

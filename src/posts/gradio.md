@@ -172,7 +172,7 @@ with gr.Blocks() as demo:
             greet_output = gr.TextArea(label="Greeting")
 
     greet_button.click(greet, inputs=[name_input, intensity], outputs=greet_output)
-
+    
 demo.launch(share=True)
 ```
 
