@@ -93,9 +93,12 @@ function markdownToHtml(markdown: string): string {
   // --- Inline code
   html = html.replace(/`([^`]+)`/gim, '<code>$1</code>');
 
-  // --- Images
-  html = html.replace(/!\[([^\]]+)\]\(([^)]+)\)/gim, (_, alt, src) => {
-    return `<div><next-img alt="${alt}" src="${src}" /></div>`;
+  // --- Images with caption (alt text as caption)
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/gim, (_, alt, src) => {
+    return `<figure class="image-block">
+              <img alt="${alt}" src="${src}" class="rounded-md shadow-md object-contain w-full h-auto" />
+              ${alt ? `<figcaption class="caption">${alt}</figcaption>` : ""}
+            </figure>`;
   });
 
   // --- Links
@@ -119,6 +122,9 @@ function markdownToHtml(markdown: string): string {
 export function MarkdownRenderer({ content }: { content: string }) {
   const htmlContent = markdownToHtml(content);
 
+  // // Debugging: Log the generated HTML content
+  // console.log("Generated HTML:", htmlContent);
+  
   return (
     <div className="prose dark:prose-invert max-w-none">
       {parse(htmlContent, {
@@ -139,6 +145,14 @@ export function MarkdownRenderer({ content }: { content: string }) {
                   className="rounded-md shadow-md object-contain w-full h-auto"
                 />
               </div>
+            );
+          }
+
+          if (domNode.name === "figcaption") {
+            return (
+              <figcaption className="caption">
+                {domToReact(domNode.children)}
+              </figcaption>
             );
           }
         },

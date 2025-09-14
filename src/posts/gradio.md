@@ -129,6 +129,8 @@ demo.launch(share=True)
 Kết quả:
 ![demo 2](https://res.cloudinary.com/daijlu58e/image/upload/gradio_2_kph04b.png)
 
+
+
 Với block ta có thể sắp xếp bố cục với 2 thành phần cơ bản là **Row** và **Column**, ví dụ nếu muốn ô nhập tên và slider chọn intensity cùng 1 dòng, ta có thể viết: 
 
 ```python

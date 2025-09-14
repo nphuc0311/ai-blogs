@@ -73,3 +73,9 @@
   text-transform: uppercase;
   border: 1px solid #44475a;
 }
+
+/* Center the caption below the image */
+figure.image-block .caption {
+  text-align: center;
+  margin-bottom: 1rem;
+}
