@@ -109,17 +109,17 @@ Trong một dự án FastAPI lớn, thư mục **`core/`** thường được d�
 
    Ví dụ: `config.py`
 
-   ```python
-    from pydantic_settings import BaseSettings
+```python
+from pydantic_settings import BaseSettings
 
-    class Settings(BaseSettings):
-        DB_URL:str = None
-        
-        class Config:
-            env_file = '.env'
+class Settings(BaseSettings):
+    DB_URL:str = None
+    
+    class Config:
+        env_file = '.env'
 
-    settings = Settings()
-   ```
+settings = Settings()
+```
 
 Khi phát triển ứng dụng, một số thông tin không được để lộ ra ngoài (password,apikey,..). Do đó biến môi trường `.env` có vai trò tách biệt các thông tin nhạy cảm ra ngoài. Ở đây class Settings sẽ đóng vai trò cấu hình, đọc các thông tin ấy vào dự án.  
 
@@ -137,15 +137,15 @@ Nếu coi database là “xương sống” của ứng dụng, thì `models/` c
 
 #### Vai trò chính
 
-1. **Định nghĩa bảng (tables) trong DB**  
+**1. Định nghĩa bảng (tables) trong DB**  
    - Mỗi class trong `models/` thường tương ứng với một bảng.  
    - Các thuộc tính (fields) trong class tương ứng với cột trong bảng.  
 
-2. **ORM (Object Relational Mapping)**  
+**2. ORM (Object Relational Mapping)**  
    - Thay vì viết câu lệnh SQL thủ công, bạn thao tác với object Python.  
    - Ví dụ: `session.add(User(name="Quyen"))` thay vì `INSERT INTO user...`.  
 
-3. **Kết hợp với schemas/**  
+**3. Kết hợp với schemas/**  
    - `models/` dùng để lưu và truy vấn dữ liệu trong DB.  
    - `schemas/` dùng để định nghĩa dữ liệu request/response cho API.  
    - Chúng tách biệt để **tránh lộ thông tin nhạy cảm** (vd: `password_hash`).  
@@ -153,7 +153,6 @@ Nếu coi database là “xương sống” của ứng dụng, thì `models/` c
 Tóm lại, model giúp thay thế vai trò của các bảng SQL thủ công, dễ xử lý chung với ngôn ngữ python.
 
 ```python
-    
 class Category(Base):
     __tablename__ = 'categories'
 
@@ -164,9 +163,9 @@ class Category(Base):
 ```
 
 ```python
-    class Food(Base):
+class Food(Base):
     __tablename__ = 'foods'
-    
+
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, unique=True, index=True)
     cost = Column(Float, nullable=False)
@@ -314,7 +313,6 @@ def add_category(payload:CategoryCreate, db:Session = Depends(get_db)):
 
 
 ```python
-
 # show all categories in menu
 @router.get('/categories/show', response_model=List[CategoryRead], status_code=200)
 def show_categories(db:Session = Depends(get_db)):
@@ -323,7 +321,6 @@ def show_categories(db:Session = Depends(get_db)):
 ```
 
 ```python
-
 @router.delete('/categories/{category_id}')
 def delete_category(
     db:Session = Depends(get_db),

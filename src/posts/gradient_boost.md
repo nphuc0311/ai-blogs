@@ -45,14 +45,14 @@ $$
 
 * Huấn luyện mô hình mới: Tìm đạo hàm âm của hàm mất mát tại dự đoán hiện tại $F_{m-1}$
 
-* Tìm hệ số bước $\gamma_{m}$:
+* Tìm hệ số bước $\gamma_{jm}$:
 $$
-\gamma_m = \arg\min_\gamma \sum_{i=1}^n L \big( y_i, F_{m-1}(x_i) + \gamma h_m(x_i) \big)
+\gamma_{jm} = \arg\min_\gamma \sum_{x \in R_{jm}} L \big(y_i, F_{m-1}(x_i) + \gamma \big) \text{ for } j = 1, ..., J_m
 $$
 
 * Cập nhật mô hình:
 $$
-F_m(x) = F_{m-1}(x) + \gamma_m h_m(x)
+F_m(x) = F_{m-1}(x) + \alpha \sum_{j = 1}^{J_m} \gamma_{jm} I(x \in R_{jm})
 $$
 
 #### Bước 3: Sau $M$ vòng lặp, kết quả dự đoán chính là kết quả đầu ra của mô hình cuối cùng $F_{M}(x)$
@@ -98,39 +98,48 @@ Các giá trị residuals chính là mục tiêu mà mô hình kế tiếp cần
 
 ### Huấn luyện và cập nhập mô hình
 
-Chúng ta huấn luyện một cây quyết định mới $h_{1}(x)$ trên tập dữ liệu với giá trị residuals $r_{1}$ là mục tiêu. Cây quyết định này sẽ học cách dự đoán lỗi của mô hình trước đó. Giả sử sau huấn luyện ta thu được kết quả như sau:
+Chúng ta huấn luyện một cây quyết định mới $h_{1}(x)$ trên tập dữ liệu với giá trị residuals $r_{1}$ là mục tiêu. Cây quyết định này sẽ học cách dự đoán lỗi của mô hình trước đó. Giả sử sau huấn luyện ta thu được một weak-learner có root là $x \leq 120$, ta có thể tính được hệ số bước $\gamma$ cho mỗi node lá như sau:
+
+$$
+\begin{aligned}
+    &\gamma_{1} = \frac{-0.5 - 0.2}{2} = -0.35 \\
+    &\gamma_{2} = \frac{0.5 + 0.0 + 0.2}{3} \approx 0.233 
+\end{aligned}
+$$
 
 | Diện tích (x) | Dự đoán Residual $h_{1}(x)$ |
 |---------------|-----------------------------|
-| 100           | -0.4                        |
-| 120           | -0.2                        |
-| 150           | 0.5                         |
-| 180           | 0.0                         |
-| 200           | 0.2                         |
+| 100           | -0.35                       |
+| 120           | -0.35                       |
+| 150           | 0.233                       |
+| 180           | 0.233                       |
+| 200           | 0.233                       |
 
 Giả sử chúng ta chọn learning rate $\alpha = 0.3$, mô hình tổng thể sẽ được cập nhập bằng cách thêm mô hình mới vào.
+
 $$
 \begin{aligned}
-    F_{1}(x) &= F_{0}(x) + \alpha h_{1}(x) \\
-    F_{1}(100) &= F_{0}(100) + \alpha h_{1}(100) \\
-    F_{1}{100} &= 2.0 + 0.1 \times (-0.4) = 1.68
+    &F_{1}(x) = F_{0}(x) + \alpha h_{1}(x) \\
+    &F_{1}(100) = F_{0}(100) + \alpha h_{1}(100) \\
+    &F_{1}(100) = 2.0 + 0.3 \times (-0.35) = 1.895
 \end{aligned}
 $$
+
 Sau khi cập nhập mô hình ta có:
 
 | Diện tích (x) | Giá nhà (y) | Dự đoán $F_{0}$ | Dự đoán $F_{1}$ |
 |---------------|-------------|-----------------|-----------------|
-| 100           | 1.5         | 2.0             | 1.88            |
-| 120           | 1.8         | 2.0             | 1.94            |
-| 150           | 2.5         | 2.0             | 2.15            |
-| 180           | 2.0         | 2.0             | 2.0             |
-| 200           | 2.2         | 2.0             | 2.06            |
+| 100           | 1.5         | 2.0             | 1.895           |
+| 120           | 1.8         | 2.0             | 1.895           |
+| 150           | 2.5         | 2.0             | 2.0699          |
+| 180           | 2.0         | 2.0             | 2.0699          |
+| 200           | 2.2         | 2.0             | 2.0699          |
 
 > Nhận xét: Các giá trị dự đoán $F_{1}$ của mô hình đã gần hơn so với giá trị thực $y$. Quá trình này sẽ được lặp lại $M$ lần (tương ướng với $M$ cây)
 
-Qua ví dụ trên các bạn chắc hẳn cũng đã phần nào hiểu hơn về cơ chế hoạt động của thuật toán Gradient Boosting. Nhưng các bạn có thắc mắc tại sao giá trị khởi tạo mô hình $F_0$ lại là giá trị trung bình của tập đầu vào $x$ hay tại sao lại phải nhân thêm một tham số $\alpha$ ở trong bước cập nhập mô hình không ? Chúng ta sẽ cùng nhau trả lời những câu hỏi trên nhé!
+Qua ví dụ trên các bạn chắc hẳn cũng đã phần nào hiểu hơn về cơ chế hoạt động của thuật toán Gradient Boosting. Nhưng các bạn có thắc mắc tại sao giá trị khởi tạo mô hình $F_0$ lại là giá trị trung bình của tập đầu vào $x$ hay các giá trị dự đoán ở cây kế tiếp lại là giá trị trung bình của residual hay không ? Chúng ta sẽ cùng nhau trả lời những câu hỏi trên nhé!
 
-### Hàm mất mát Mean Squared Error (MSE)
+### Mean Squared Error (MSE)
 MSE là một hàm mất mát phổ biến cho bài toán hồi quy, có dạng:
 
 $$
@@ -141,7 +150,7 @@ Lấy đạo hàm theo $F(x)$ ta có:
 
 $$
 \nabla_{F(x)} L(y_i, F(x)) 
-= \frac{\partial}{\partial F(x)} 2(y_i - F(x))^{2} 
+= \frac{\partial}{\partial F(x)} 2(y_i - F(x))
 = -(y_i - F(x)) \text{ for } i = 1, ..., n
 $$
 
@@ -151,26 +160,57 @@ $$
 -\nabla_{F(x)} L(y_i, F(x)) = -(-(y_i - F(x))) = y_i - F(x) \text{ for } i = 1, ..., n
 $$
 
-Đây chính xác là công thức tính residual mà chúng ta đã sử dụng!
-
-Vì vậy, việc huấn luyện cây quyết định mới trên residual thực chất là xấp xỉ (approximate) cực tiểu của hàm mất mát. Cây quyết định này sẽ giúp chúng ta tìm "hướng đi" tốt nhất để cập nhật mô hình, sao cho hàm mất mát được giảm xuống.
-
-Nhưng tại sao giá trị khởi đầu lại là giá trị trung bình ? Khi khởi tạo mô hình, mục tiêu của chúng ta là tìm một hằng số $F(x)$ sao cho hàm mất mát được tối thiểu hóa. Và để tìm giá trị tối ưu $F(x)$, chúng ta chỉ việc đặt giá trị đạo hàm bằng 0.
+Đây chính xác là công thức tính phần dư (residual) mà chúng ta đã sử dụng! Đối với hệ số bước $\gamma$, chúng ta đã biết công thức để tìm giá trị dự đoán tối ưu cho mỗi lá là:
 
 $$
-\nabla_{F(x)} L(y, F(x)) = -2\frac{1}{n} \sum_{i=1}^{n}(y_i - F(x)) = 0 \\
-\sum_{i=1}^{n}(y_i - F(x)) = 0 \\
-\sum_{i=1}^{n}y_i - \sum_{i=1}^{n}F(x) = 0 \\
-\sum_{i=1}^{n}y_i - nF(x) = 0 \\
-\sum_{i=1}^{n}y_i = nF(x) \\
-F(x) = \frac{1}{n}\sum_{i=1}^{n}y_i
+\gamma_{jm} = \arg\min_\gamma \sum_{x \in R_{jm}} L \big(y_i, F_{m-1}(x_i) + \gamma \big) \text{ for } j = 1, ..., J_m
+$$
+
+Sử dụng MSE ta có:
+
+$$
+\gamma_{jm} = \arg\min_\gamma \sum_{x \in R_{jm}} (y_i - (F_{m-1}(x_i) + \gamma))^2
+$$
+
+Vì $F_{m-1}(x_i) + \gamma$ chính là dự đoán mới, và phần dư (residual) $r_{im}$ được tính là $y_i - F_{m-1}(x_i)$, thay vào công thức trên ta có:
+
+$$
+\gamma_{jm} = \arg\min_\gamma \sum_{x \in R_{jm}}(r_{im} - \gamma)^2
+$$
+
+Để tìm giá trị tối ưu ta cho đạo hàm bằng 0:
+
+$$
+\begin{aligned}
+    &\nabla_{\gamma} \gamma_{jm} = -2\sum_{x \in R_{jm}}(r_{im} - \gamma) = 0 \\
+    &\sum_{x \in R_{jm}}(r_{im} - \gamma) = 0 \\
+    &\sum_{x \in R_{jm}}r_{im} - \sum_{x \in R_{jm}}\gamma = 0 \\
+    &\sum_{x \in R_{jm}} - R_{jm}\gamma = 0 \\
+    &\sum_{x \in R_{jm}} = R_{jm}\gamma \\
+    &\gamma_{jm} = \frac{1}{R_{jm}}\sum_{x \in R_{jm}}r_{im}
+\end{aligned}
+$$
+
+Đây chính là trung bình cộng của các phần dư trong vùng lá $R_{jm}$. Vì vậy, việc huấn luyện cây quyết định mới trên trung bình phần dư (residual) thực chất là xấp xỉ (approximate) cực tiểu của hàm mất mát. Cây quyết định này sẽ giúp chúng ta tìm "hướng đi" tốt nhất để cập nhật mô hình, sao cho hàm mất mát được giảm xuống.
+
+Nhưng tại sao giá trị khởi đầu lại là giá trị trung bình ? Khi khởi tạo mô hình, mục tiêu của chúng ta là tìm một hằng số $F(x)$ sao cho hàm mất mát được tối thiểu hóa. Tương tự, để tìm giá trị tối ưu $F(x)$, chúng ta chỉ việc đặt giá trị đạo hàm bằng 0.
+
+$$
+\begin{aligned}
+    &\nabla_{F(x)} L(y, F(x)) = -\tfrac{2}{n} \sum_{i=1}^{n}(y_i - F(x)) = 0 \\
+    &\sum_{i=1}^{n}(y_i - F(x)) = 0 \\
+    &\sum_{i=1}^{n}y_i - \sum_{i=1}^{n}F(x) = 0 \\
+    &\sum_{i=1}^{n}y_i - nF(x) = 0 \\
+    &\sum_{i=1}^{n}y_i = nF(x) \\
+    &F(x) = \tfrac{1}{n}\sum_{i=1}^{n}y_i
+\end{aligned}
 $$
 
 Từ biểu thức trên, chúng ta thấy rằng giá trị $F(x)$ tối ưu chính là giá trị trung bình của $y$. Do đó, việc khởi tạo mô hình bằng giá trị trung bình của $y$ đảm bảo rằng chúng ta bắt đầu từ một điểm tối ưu, nơi hàm mất mát đã ở mức thấp nhất có thể với một hằng số duy nhất.
 
-### Tốc độ học learning rate
+<!-- ### Tốc độ học learning rate
 
-Nếu chúng ta cộng trực tiếp giá trị dự đoán của cây mới vào mô hình, mỗi cây sẽ có ảnh hưởng rất lớn và mạnh mẽ. Điều này có thể khiến mô hình hội tụ quá nhanh, dẫn đến tình trạng mô hình quá khớp (overfitting) và không ổn định. Bằng cách nhân với một giá trị learning rate nhỏ, chúng ta đảm bảo rằng đóng góp của mỗi cây mới chỉ là một phần nhỏ. Điều này tạo ra một quá trình học từ tốn và cẩn thận hơn, giúp ngăn chặn mô hình bị quá khớp (overfitting) và cải thiện khả năng tổng quát hóa của nó trên dữ liệu mới.
+Nếu chúng ta cộng trực tiếp giá trị dự đoán của cây mới vào mô hình, mỗi cây sẽ có ảnh hưởng rất lớn và mạnh mẽ. Điều này có thể khiến mô hình hội tụ quá nhanh, dẫn đến tình trạng mô hình quá khớp (overfitting) và không ổn định. Bằng cách nhân với một giá trị learning rate nhỏ, chúng ta đảm bảo rằng đóng góp của mỗi cây mới chỉ là một phần nhỏ. Điều này tạo ra một quá trình học từ tốn và cẩn thận hơn, giúp ngăn chặn mô hình bị quá khớp (overfitting) và cải thiện khả năng tổng quát hóa của nó trên dữ liệu mới. -->
 
 ## 3. Gradient Boosting cho bài toán Phân loại
 
@@ -200,11 +240,11 @@ Chúng ta khởi tạo mô hình ban đầu $F_0(x)$ bằng cách lấy giá tr�
 
 $$
 \begin{aligned}
-    \text{odds} = \frac{\hat{p}}{1 - \hat{p}}
+    &\text{odds} = \frac{\hat{p}}{1 - \hat{p}}
     = \frac{\frac{3}{5}}{1 - \frac{3}{5}}
     = 1.5 \\
 
-    F_0(x) = \log(\text{odds}) 
+    &F_0(x) = \log(\text{odds}) 
     = \log(1.5)
     \approx 0.405
 \end{aligned}
@@ -222,7 +262,7 @@ $$
 Pseudo-Residual $r_i$ là gradient âm của hàm mất mát nên ta có:
 
 $$
-\frac{\partial L}{\partial F_0} = y_i - \text{Sigmoid}(F_0(x_i))
+-\frac{\partial L}{\partial F_0} = y_i - \text{Sigmoid}(F_0(x_i))
 $$
 
 Trong đó, $\text{Sigmoid}(F_0(x_i))$ là hàm chuyển đổi từ log-odds sang xác suất. Chúng ta tính xác suất dự đoán ban đầu $\hat{p_0}$ và pseudo-residual cho từng khách hàng:
@@ -242,6 +282,38 @@ Lúc này, ta có bảng dữ liệu sau:
 | 30                  | 1            | 0.405                     | 0.6                           | 0.4                  |
 
 Các giá trị pseudo-residual này chính là "mục tiêu" mới mà cây quyết định tiếp theo cần học.
+
+### Huấn luyện và cập nhập
+
+Tương tự như bài toán hồi quy, chúng ta huấn luyện một cây quyết định mới $h_{1}(x)$ trên tập dữ liệu với giá trị pseudo-residual $r_{1}$ là mục tiêu. Giả sử sau huấn luyện ta thu được một weak-learner có root là $x \leq 15$, ta có thể tính được hệ số bước $\gamma$ cho mỗi node lá như sau:
+
+$$
+\begin{aligned}
+    &\gamma_{1} = \frac{\sum r_i}{\sum (\hat{p_i}(1 - \hat{p_i}))} = \frac{0.4 - 0.6}{0.6(1-0.6) + 0.6(1 - 0.6)} \approx 0.417 \\
+    &\gamma_{2} = \frac{\sum r_i}{\sum (\hat{p_i}(1 - \hat{p_i}))} = \frac{0.4 - 0.6 + 0.4}{0.6(1-0.6) + 0.6(1 - 0.6) + 0.6(1 - 0.6)} \approx 0.278
+\end{aligned}
+$$
+
+| Số lần truy cập (x) | Dự đoán pseudo-residual $h_{1}(x)$ |
+|---------------------|------------------------------------|
+| 10                  | 0.417                              |
+| 15                  | 0.417                              |
+| 20                  | 0.278                              |
+| 25                  | 0.278                              |
+| 30                  | 0.278                              |
+
+Giả sử chúng ta chọn learning rate $\alpha = 0.3$, mô hình tổng thể sẽ được cập nhập bằng cách thêm mô hình mới vào, ta có:
+
+| Số lần truy cập (x) | Mua hàng (y) | Dự đoán $F_0$ | $\gamma$ | Cập nhật $F_1$                        | Dự đoán xác suất $\hat{p}_1 = \text{Sigmoid}(F_1)$ |
+|---------------------|--------------|---------------|----------|---------------------------------------|----------------------------------------------------|
+| 10                  | 1            | 0.405         | -0.417   | $0.405 + 0.3 \times (-0.417) = 0.280$ | $\text{Sigmoid}(0.280) \approx 0.569$              |
+| 15                  | 0            | 0.405         | -0.417   | $0.405 + 0.3 \times (-0.417) = 0.280$ | $\text{Sigmoid}(0.280) \approx 0.569$              |
+| 20                  | 1            | 0.405         | 0.278    | $0.405 + 0.3 \times (0.278) = 0.488$  | $\text{Sigmoid}(0.488) \approx 0.620$              |
+| 25                  | 0            | 0.405         | 0.278    | $0.405 + 0.3 \times (0.278) = 0.488$  | $\text{Sigmoid}(0.488) \approx 0.620$              |
+| 30                  | 1            | 0.405         | 0.278    | $0.405 + 0.3 \times (0.278) = 0.488$  | $\text{Sigmoid}(0.488) \approx 0.620$              |
+
+> Nhận xét: Các giá trị xác suất đã thay đổi. Mô hình đã được cập nhật và trở nên chính xác hơn.
+
 
 
 
