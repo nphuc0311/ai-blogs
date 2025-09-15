@@ -86,7 +86,7 @@ $$
 
 Lúc này, từ bảng dữ liệu huấn luyện ban đầu ta có:
 
-| Diện tích (x) | Giá nhà (y) | Dự đoán $F_{0}$ | Residuals $r_{1}$ |
+| Diện tích (x) | Giá nhà (y) | Dự đoán $F_{0}$ | Residuals $r_{1}$        |
 |---------------|-------------|-----------------|--------------------------|
 | 100           | 1.5         | 2.0             | -0.5                     |
 | 120           | 1.8         | 2.0             | -0.2                     |
@@ -108,53 +108,76 @@ Chúng ta huấn luyện một cây quyết định mới $h_{1}(x)$ trên tập
 | 180           | 0.0                         |
 | 200           | 0.2                         |
 
-Giả sử chúng ta chọn learning rate $\alpha = 0.8$, mô hình tổng thể sẽ được cập nhập bằng cách thêm mô hình mới vào.
+Giả sử chúng ta chọn learning rate $\alpha = 0.3$, mô hình tổng thể sẽ được cập nhập bằng cách thêm mô hình mới vào.
 $$
 \begin{aligned}
     F_{1}(x) &= F_{0}(x) + \alpha h_{1}(x) \\
     F_{1}(100) &= F_{0}(100) + \alpha h_{1}(100) \\
-    F_{1}{100} &= 2.0 + 0.8 \times (-0.4) = 1.68
+    F_{1}{100} &= 2.0 + 0.1 \times (-0.4) = 1.68
 \end{aligned}
 $$
 Sau khi cập nhập mô hình ta có:
 
 | Diện tích (x) | Giá nhà (y) | Dự đoán $F_{0}$ | Dự đoán $F_{1}$ |
 |---------------|-------------|-----------------|-----------------|
-| 100           | 1.5         | 2.0             | 1.68            |
-| 120           | 1.8         | 2.0             | 1.84            |
-| 150           | 2.5         | 2.0             | 2.4             |
+| 100           | 1.5         | 2.0             | 1.88            |
+| 120           | 1.8         | 2.0             | 1.94            |
+| 150           | 2.5         | 2.0             | 2.15            |
 | 180           | 2.0         | 2.0             | 2.0             |
-| 200           | 2.2         | 2.0             | 2.16            |
+| 200           | 2.2         | 2.0             | 2.06            |
 
 > Nhận xét: Các giá trị dự đoán $F_{1}$ của mô hình đã gần hơn so với giá trị thực $y$. Quá trình này sẽ được lặp lại $M$ lần (tương ướng với $M$ cây)
 
-Qua ví dụ trên các bạn chắc hẳn cũng đã phần nào hiểu hơn về cơ chế hoạt động của thuật toán Gradient Boosting. Nhưng các bạn có thắc mắc tại sao giá trị khởi tạo mô hình $F_0$ lại là giá trị trung bình của tập đầu vào $x$ hay tại sao lại phải nhân thêm một tham số $\alpha$ ở trong bước cập nhập mô hình không ?
-
-Chúng ta sẽ cùng nhau trả lời những câu hỏi trên nhé!
+Qua ví dụ trên các bạn chắc hẳn cũng đã phần nào hiểu hơn về cơ chế hoạt động của thuật toán Gradient Boosting. Nhưng các bạn có thắc mắc tại sao giá trị khởi tạo mô hình $F_0$ lại là giá trị trung bình của tập đầu vào $x$ hay tại sao lại phải nhân thêm một tham số $\alpha$ ở trong bước cập nhập mô hình không ? Chúng ta sẽ cùng nhau trả lời những câu hỏi trên nhé!
 
 ### Hàm mất mát Mean Squared Error (MSE)
-MSE là một hàm mất mát phổ biến cho bài toán hồi quy, có công thức:
+MSE là một hàm mất mát phổ biến cho bài toán hồi quy, có dạng:
+
 $$
-L(y,F(x)) = \frac{1}{2}(y - F(x))^2
+L(y,F(x)) = \frac{1}{n} \sum_{i=1}^{n}(y_i - F(x))^2
 $$
-Lấy đạo hàm theo $F(x)$ ta có
+
+Lấy đạo hàm theo $F(x)$ ta có:
+
 $$
-\nabla_{F(x)} L(y, F(x)) 
-= \frac{\partial}{\partial F(x)} \tfrac{1}{2} (y - F(x))^{2} 
-= -(y - F(x))
+\nabla_{F(x)} L(y_i, F(x)) 
+= \frac{\partial}{\partial F(x)} 2(y_i - F(x))^{2} 
+= -(y_i - F(x)) \text{ for } i = 1, ..., n
 $$
-Mục tiêu của chúng ta là sẽ tối thiểu hoá hàm mất mát này để sai số giữa giá trị dự đoán và gia trị thực là nhỏ nhất. Chính vì vậy, để tìm cực tiểu của một hàm số, ta cần đi theo hướng ngược lại của đạo hàm.
+
+Chúng ta tạm thời không quan tâm đến giá trị 2 trong hàm trên vì đây là một hằng số, mục tiêu của chúng ta là sẽ tối thiểu hoá hàm mất mát này để sai số giữa giá trị dự đoán và gia trị thực là nhỏ nhất. Chính vì vậy, để tìm cực tiểu của một hàm số, ta cần đi theo hướng ngược lại của đạo hàm.
+
 $$
--\nabla_{F(x)} L(y, F(x)) = -(-(y - F(x))) = y - F(x)
+-\nabla_{F(x)} L(y_i, F(x)) = -(-(y_i - F(x))) = y_i - F(x) \text{ for } i = 1, ..., n
 $$
+
 Đây chính xác là công thức tính residual mà chúng ta đã sử dụng!
 
 Vì vậy, việc huấn luyện cây quyết định mới trên residual thực chất là xấp xỉ (approximate) cực tiểu của hàm mất mát. Cây quyết định này sẽ giúp chúng ta tìm "hướng đi" tốt nhất để cập nhật mô hình, sao cho hàm mất mát được giảm xuống.
 
-Nhưng tại sao giá trị khởi đầu lại là giá trị trung bình ? Chúng ta đã biết công thức để tìm giá trị dự đoán tối ưu cho mỗi lá là:
+Nhưng tại sao giá trị khởi đầu lại là giá trị trung bình ? Khi khởi tạo mô hình, mục tiêu của chúng ta là tìm một hằng số $F(x)$ sao cho hàm mất mát được tối thiểu hóa. Và để tìm giá trị tối ưu $F(x)$, chúng ta chỉ việc đặt giá trị đạo hàm bằng 0.
+
 $$
-\gamma_m = \arg\min_\gamma \sum_{i=1}^n L \big( y_i, F_{m-1}(x_i) + \gamma h_m(x_i) \big)
+\nabla_{F(x)} L(y, F(x)) = -2\frac{1}{n} \sum_{i=1}^{n}(y_i - F(x)) = 0 \\
+\sum_{i=1}^{n}(y_i - F(x)) = 0 \\
+\sum_{i=1}^{n}y_i - \sum_{i=1}^{n}F(x) = 0 \\
+\sum_{i=1}^{n}y_i - nF(x) = 0 \\
+\sum_{i=1}^{n}y_i = nF(x) \\
+F(x) = \frac{1}{n}\sum_{i=1}^{n}y_i
 $$
+
+Từ biểu thức trên, chúng ta thấy rằng giá trị $F(x)$ tối ưu chính là giá trị trung bình của $y$. Do đó, việc khởi tạo mô hình bằng giá trị trung bình của $y$ đảm bảo rằng chúng ta bắt đầu từ một điểm tối ưu, nơi hàm mất mát đã ở mức thấp nhất có thể với một hằng số duy nhất.
+
+### Tốc độ học learning rate $\alpha$
+
+Nếu chúng ta cộng trực tiếp giá trị dự đoán của cây mới vào mô hình, mỗi cây sẽ có ảnh hưởng rất lớn và mạnh mẽ. Điều này có thể khiến mô hình hội tụ quá nhanh, dẫn đến tình trạng mô hình quá khớp (overfitting) và không ổn định. Bằng cách nhân với một giá trị learning rate nhỏ, chúng ta đảm bảo rằng đóng góp của mỗi cây mới chỉ là một phần nhỏ. Điều này tạo ra một quá trình học từ tốn và cẩn thận hơn, giúp ngăn chặn mô hình bị quá khớp (overfitting) và cải thiện khả năng tổng quát hóa của nó trên dữ liệu mới.
+
+
+
+
+
+
+
 
 
 

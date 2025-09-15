@@ -1,19 +1,17 @@
 ---
 title: "Thuật toán Random Forest: Lý thuyết và Thực hành"
 date: "2025-09-13"
-author: "Phúc Nguyễn"
+author: "Quyền Nguyễn"
 description: "Bài viết tìm hiểu về Random Forest: từ khái niệm cơ bản, cơ chế hoạt động, đến thực hành với bộ dữ liệu Titanic."
 tags: random-forest, machine-learning, ensemble, python, tutorial
-categories: M05W02
+categories: M04W01
 ---
 
 ## I. Giới thiệu
 
 Trong cuộc sống hằng ngày, có rất nhiều quyết định được thực hiện theo hình thức biểu quyết số đông. Các phiếu bầu có thể có tỉ lệ đóng góp như nhau, như việc bầu chọn ban cán sự trong lớp hay các chương trình bình chọn để chọn ra ca sĩ được yêu thích nhất. Nhưng cũng có thể giữa các phiếu bầu có mức độ quan trọng khác nhau.
 
-<!-- ![Hình 1. Bầu cử Tổng Thống Mỹ 2024 với “phiếu đại cử tri” khác nhau ở mỗi bang](attachment:6da2a304-46e9-4fa5-88ea-9ad84e91fb5a:ElectoralCollege2024.svg.png) -->
-
-Hình 1. Bầu cử Tổng Thống Mỹ 2024 với “phiếu đại cử tri” khác nhau ở mỗi bang
+![Hình 1. Bầu cử Tổng Thống Mỹ 2024 với “phiếu đại cử tri” khác nhau ở mỗi bang](https://res.cloudinary.com/dmbfrfggz/image/upload/v1757867532/ElectoralCollege2024.svg_1_n67rgh.png)
 
 Trong khoa học máy tính nói chung, hay học máy nói riêng cũng tồn tại một phương pháp sử dụng ‘triết lí’ đó - đó là **phương pháp ensemble learning - tập trung nhiều mô hình để tạo ra một kết quả dự đoán tốt.**
 
@@ -29,9 +27,7 @@ Về cơ bản, đúng như tên gọi của nó **“Forest”- một tập h�
 
 Giả sử bạn có dữ liệu sau
 
-<!-- ![Hình 2 Dữ liệu Thời tiết. Nguồn: https://machinelearningcoban.com/2018/01/14/id3/#-y-tuong](attachment:adbc0218-40a5-4f63-8d74-bfe3fad7e72c:image.png) -->
-
-Hình 2 Dữ liệu Thời tiết. Nguồn: https://machinelearningcoban.com/2018/01/14/id3/#-y-tuong
+![Hình 2 Dữ liệu Thời tiết. Nguồn: https://machinelearningcoban.com/2018/01/14/id3/#-y-tuong](https://res.cloudinary.com/dmbfrfggz/image/upload/v1757894079/image_dpujfo.png)
 
 Đây là một bảng dữ liệu được sử dụng rất nhiều trong các bài giảng về decision tree. Bảng dữ liệu này mô tả mối quan hệ giữa thời tiết trong 14 ngày (bốn cột đầu, không tính cột id) và việc một đội bóng có chơi bóng hay không (cột cuối cùng). Nói cách khác, ta phải dự đoán giá trị ở cột cuối cùng nếu biết giá trị của bốn cột còn lại.
 
@@ -39,9 +35,8 @@ Hình 2 Dữ liệu Thời tiết. Nguồn: https://machinelearningcoban.com/201
 
 **Có thể sẽ có nhiều cách bạn nghĩ ra được, một trong số đó có thể như thế này:**
 
-<!-- ![Hình 3 https://machinelearningcoban.com/2018/01/14/id3/#-y-tuong](attachment:c5139b32-9f5e-49cd-a6ed-1883f360e888:image.png) -->
+![Hình 3 https://machinelearningcoban.com/2018/01/14/id3/#-y-tuong](https://res.cloudinary.com/dmbfrfggz/image/upload/v1757894079/image_1_pgyocc.png)
 
-Hình 3 https://machinelearningcoban.com/2018/01/14/id3/#-y-tuong
 
 **Và đó chính là ý tưởng của cây quyết định, thay vì bạn phải nghĩ một cách thủ công và không có một quy luật nào thì decision tree sẽ giúp chúng ta tạo ra một quy luật để có thể dẫn đến kết quả cuối cùng một cách có logic. Do đó, khác với các thuật toán khác, decision tree giúp trực quan hóa kết quả đạt được một cách dễ hiểu và đáng tin cậy.**
 
@@ -83,10 +78,7 @@ Thuật toán dùng “gini” hoặc “entrophy” để định lượng hóa
 Tham khảo tại: https://machinelearningcoban.com/2018/01/14/id3/#-y-tuong cách thuật toán hoạt động chi tiết.  
 Cuối cùng ta được kết quả như sau:
 
-<!-- ![Hình 4. Kết quả bài toán Nguồn: https://machinelearningcoban.com/2018/01/14/id3/#-y-tuong](attachment:92771200-3720-4584-8a1d-b87ea08e7e07:image.png) -->
-
-Hình 4. Kết quả bài toán  
-Nguồn: https://machinelearningcoban.com/2018/01/14/id3/#-y-tuong
+![Hình 4. Kết quả bài toán Nguồn: https://machinelearningcoban.com/2018/01/14/id3/#-y-tuong](https://res.cloudinary.com/dmbfrfggz/image/upload/v1757894079/image_2_z3jvha.png)
 
 ### 2. Random Forest
 
@@ -99,9 +91,7 @@ Nguồn: https://machinelearningcoban.com/2018/01/14/id3/#-y-tuong
 - **B1. Chuẩn bị dữ liệu**
 - **Kĩ thuật Bagging**
     
-    <!-- ![Hình 5 Mô hình Bagging](attachment:82b7293c-db1b-4e09-97cf-9deaae3df742:Bagging-classifier.png) -->
-    
-    Hình 5 Mô hình Bagging
+    ![Hình 5 Mô hình Bagging](https://res.cloudinary.com/dmbfrfggz/image/upload/v1757894079/Bagging-classifier_1_fy8lhy.png)
     
     **Bagging (Bootstrap Aggregating) là một kĩ thuật random có hoàn lại các feature trong dữ liệu gốc để tạo ra một sample dữ liệu sử dụng cho từng cây quyết định riêng lẻ.**
     
@@ -168,15 +158,15 @@ profile.to_file('report.html')
 
 Khi đó ta được file html chứa thông tin về dữ liệu.
 
-[report.html](attachment:c67568e8-5223-4117-b183-edfa0b7a71a6:report.html)
+[report.html](https://res.cloudinary.com/dmbfrfggz/raw/upload/v1757894347/report_kkkyxc.html)
 
-<!-- ![image.png](attachment:009073de-20f8-466f-a06a-a0c35cd6a8dc:image.png)
+![](https://res.cloudinary.com/dmbfrfggz/image/upload/v1757894277/image_3_mwz30n.png)
 
-![image.png](attachment:f282229b-87cb-4722-b9c0-c47f702228c1:image.png)
+![](https://res.cloudinary.com/dmbfrfggz/image/upload/v1757894277/image_4_jmnesj.png)
 
-![image.png](attachment:61f48bd5-c041-440e-a058-2e3bc5cfbdc8:image.png) -->
+![](https://res.cloudinary.com/dmbfrfggz/image/upload/v1757894277/image_5_ztykt4.png)
 
-#### Data.info
+<!-- #### Data.info -->
 
 <!-- ![image.png](attachment:582ba9b2-bc9a-42c2-a1b4-5bed597c414e:image.png) -->
 
@@ -252,11 +242,11 @@ y_pred = pipe.predict(x_val)
 print(classification_report(y_val, y_pred))
 ```
 
-<!-- ![image.png](attachment:a19fa5ae-14c7-4aeb-a4ed-94448666ea1d:image.png) -->
+![](https://res.cloudinary.com/dmbfrfggz/image/upload/v1757894550/image_6_hjslgq.png)
 
 #### Trực quan hóa dữ liệu
 
-<!-- ![image.png](attachment:7cb8a2fd-d29e-4673-85f2-da450a1e36b0:image.png) -->
+![](https://res.cloudinary.com/dmbfrfggz/image/upload/v1757894575/Screenshot_2025-09-09_161450_taj2rq.png)
 
 ## IV. Kết
 
