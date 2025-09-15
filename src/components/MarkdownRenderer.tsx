@@ -175,7 +175,7 @@ function markdownToHtml(markdown: string): string {
   html = html
     .split(/\n\n+/)
     .map(p => {
-      if (p.match(/<\/?(h[1-6]|ul|ol|blockquote|li|pre|img|code|a|div|span|table|figure|thead|tbody|tr|td|th)/i)) {
+      if (p.match(/<\/?(h[1-6]|ul|ol|blockquote|li|pre|img|a|div|span|table|figure|thead|tbody|tr|td|th)/i)) {
         return p;
       }
       return p ? `<p>${p.replace(/\n/g, '<br/>')}</p>` : '';
@@ -200,7 +200,7 @@ export function MarkdownRenderer({ content }: { content: string }) {
   // console.log("Generated HTML:", htmlContent);
   
   return (
-    <div className="prose dark:prose-invert max-w-none">
+    <div className="prose dark:prose-invert max-w-none text-justify">
       {parse(htmlContent, {
         replace: (domNode: any) => {
           if (domNode.name === "next-img") {

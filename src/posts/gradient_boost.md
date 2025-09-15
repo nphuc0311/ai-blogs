@@ -168,9 +168,10 @@ $$
 
 Từ biểu thức trên, chúng ta thấy rằng giá trị $F(x)$ tối ưu chính là giá trị trung bình của $y$. Do đó, việc khởi tạo mô hình bằng giá trị trung bình của $y$ đảm bảo rằng chúng ta bắt đầu từ một điểm tối ưu, nơi hàm mất mát đã ở mức thấp nhất có thể với một hằng số duy nhất.
 
-### Tốc độ học learning rate $\alpha$
+### Tốc độ học learning rate
 
 Nếu chúng ta cộng trực tiếp giá trị dự đoán của cây mới vào mô hình, mỗi cây sẽ có ảnh hưởng rất lớn và mạnh mẽ. Điều này có thể khiến mô hình hội tụ quá nhanh, dẫn đến tình trạng mô hình quá khớp (overfitting) và không ổn định. Bằng cách nhân với một giá trị learning rate nhỏ, chúng ta đảm bảo rằng đóng góp của mỗi cây mới chỉ là một phần nhỏ. Điều này tạo ra một quá trình học từ tốn và cẩn thận hơn, giúp ngăn chặn mô hình bị quá khớp (overfitting) và cải thiện khả năng tổng quát hóa của nó trên dữ liệu mới.
+
 
 
 
