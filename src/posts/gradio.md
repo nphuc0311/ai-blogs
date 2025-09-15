@@ -103,7 +103,7 @@ demo.launch(share=True)
 * Output là dạng text.
 
 
-![Hình 1: Kết quả khi chạy mã nguồn](https://res.cloudinary.com/dwakxkmgr/image/upload/v1757920430/Screenshot_2025-09-06_163145_leipmj.png)
+![Hình 1. Kết quả khi chạy mã nguồn](https://res.cloudinary.com/dwakxkmgr/image/upload/v1757920430/Screenshot_2025-09-06_163145_leipmj.png)
 
 ### 2. Blocks
 
@@ -126,7 +126,7 @@ with gr.Blocks() as demo:
 demo.launch(share=True)
 ```
 
-![Hình 2: Kết quả khi chạy mã nguồn](https://res.cloudinary.com/dwakxkmgr/image/upload/v1757920499/Screenshot_2025-09-06_164034_bi1eyn.png)
+![Hình 2. Kết quả khi chạy mã nguồn](https://res.cloudinary.com/dwakxkmgr/image/upload/v1757920499/Screenshot_2025-09-06_164034_bi1eyn.png)
 
 Với block ta có thể sắp xếp bố cục với 2 thành phần cơ bản là **Row** và **Column**, ví dụ nếu muốn ô nhập tên và slider chọn intensity cùng 1 dòng, ta có thể viết: 
 
@@ -147,7 +147,7 @@ with gr.Blocks() as demo:
 demo.launch(share=True)
 ```
 
-![Hình 3: Kết quả khi chạy mã nguồn](https://res.cloudinary.com/dwakxkmgr/image/upload/v1757920538/Screenshot_2025-09-08_214243_qxller.png)
+![Hình 3. Kết quả khi chạy mã nguồn](https://res.cloudinary.com/dwakxkmgr/image/upload/v1757920538/Screenshot_2025-09-08_214243_qxller.png)
 
 Nếu muốn để input nhập tên và slider chọn intensity thành một cột và cột bên cạnh là output, ta sử dụng **`gr.Column()`**, lưu ý rằng ta cần khởi tạo **`gr.Row()`** để chứa các cột muốn xếp thành một hàng trước nếu không mỗi cột sẽ một hàng và không khác biệt gì so với **`gr.Row()`**.
 
@@ -171,7 +171,7 @@ with gr.Blocks() as demo:
 demo.launch(share=True)
 ```
 
-![Hình 4: Kết quả khi chạy mã nguồn](https://res.cloudinary.com/dwakxkmgr/image/upload/v1757920593/Screenshot_2025-09-08_214941_damxgo.png)
+![Hình 4. Kết quả khi chạy mã nguồn](https://res.cloudinary.com/dwakxkmgr/image/upload/v1757920593/Screenshot_2025-09-08_214941_damxgo.png)
 
 ## III. Triển khai Image Segmentation với U-net bằng Gradio
 
@@ -253,9 +253,9 @@ if __name__ == "__main__":
 ```
 
 Link triển khai web trên HuggingFace Spaces: [Pet Segmentation Gradio](https://huggingface.co/spaces/vngclinh/pet-segmentation-gradio)
-![Hình 5: Triển khai ứng dụng trên HuggingFace Spaces](https://res.cloudinary.com/dwakxkmgr/image/upload/v1757920626/Screenshot_2025-09-09_124441_dashrf.png)
+![Hình 5. Triển khai ứng dụng trên HuggingFace Spaces](https://res.cloudinary.com/dwakxkmgr/image/upload/v1757920626/Screenshot_2025-09-09_124441_dashrf.png)
 
-![Hình 6: Chạy thử ứng dụng và xem kết quả](https://res.cloudinary.com/dwakxkmgr/image/upload/v1757920645/Screenshot_2025-09-09_124509_iwr5cr.png)
+![Hình 6. Chạy thử ứng dụng và xem kết quả](https://res.cloudinary.com/dwakxkmgr/image/upload/v1757920645/Screenshot_2025-09-09_124509_iwr5cr.png)
 
 #### Giải thích các thành phần Gradio
 
@@ -263,7 +263,7 @@ Link triển khai web trên HuggingFace Spaces: [Pet Segmentation Gradio](https:
 
 **`gr.Markdown()`**: Hiển thị tiêu đề hoặc văn bản trên giao diện bằng Markdown, ở đây dùng để đặt tên ứng dụng.
 
-**`gr.Row()` và `gr.Column()`**: Sắp xếp phần tử theo hàng hoặc cột
+**`gr.Row()`** và **`gr.Column()`**: Sắp xếp phần tử theo hàng hoặc cột
 
 **`gr.Image(type="pil")`**: Upload/hiển thị ảnh dưới dạng PIL, `label` dùng để hiển thị tên trên giao diện.
 
