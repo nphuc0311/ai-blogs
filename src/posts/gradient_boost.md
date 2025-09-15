@@ -79,9 +79,9 @@ $$
 
 ### Tính "phần dư" (Residuals)
 
-Residuals $r_{i}$ là lỗi của mô hình hiện tại. Nó được tính bằng cách lấy giá trị thực $y$ trừ đi giá trị dự đoán $F_{0}(x)$.
+Residuals $r_{i}$ là lỗi của mô hình hiện tại. Nó được tính bằng cách lấy giá trị thực $y_i$ trừ đi giá trị dự đoán $F_{0}(x)$.
 $$
-r_{1} = y - F_{0}(x)
+r_{1} = y_1 - F_{0}(x)
 $$
 
 Lúc này, từ bảng dữ liệu huấn luyện ban đầu ta có:
@@ -172,10 +172,76 @@ Từ biểu thức trên, chúng ta thấy rằng giá trị $F(x)$ tối ưu ch
 
 Nếu chúng ta cộng trực tiếp giá trị dự đoán của cây mới vào mô hình, mỗi cây sẽ có ảnh hưởng rất lớn và mạnh mẽ. Điều này có thể khiến mô hình hội tụ quá nhanh, dẫn đến tình trạng mô hình quá khớp (overfitting) và không ổn định. Bằng cách nhân với một giá trị learning rate nhỏ, chúng ta đảm bảo rằng đóng góp của mỗi cây mới chỉ là một phần nhỏ. Điều này tạo ra một quá trình học từ tốn và cẩn thận hơn, giúp ngăn chặn mô hình bị quá khớp (overfitting) và cải thiện khả năng tổng quát hóa của nó trên dữ liệu mới.
 
+## 3. Gradient Boosting cho bài toán Phân loại
 
+Trong bài toán phân loại, ý tưởng cốt lõi của Gradient Boosting vẫn tương tự như trong hồi quy: xây dựng mô hình mạnh từ các mô hình yếu một cách tuần tự, tập trung vào việc sửa chữa lỗi của các mô hình trước đó. Tuy nhiên, có một vài thay đổi quan trọng:
 
+* **Hàm mất mát:** Chúng ta không sử dụng MSE nữa. Thay vào đó, chúng ta sẽ sử dụng các hàm mất mát phù hợp với bài toán phân loại, chẳng hạn như Binary Cross-Entropy (đối với bài toán phân loại nhị phân) hoặc Categorical Cross-Entropy (đối với bài toán đa lớp).
 
+* **Residual (Phần dư):** Thay vì residual trực tiếp, chúng ta sẽ sử dụng pseudo-residual, là gradient âm của hàm mất mát. Cây quyết định mới sẽ học cách dự đoán các giá trị này.
 
+* **Dự đoán:** Mô hình sẽ dự đoán log-odds hoặc xác suất, thay vì giá trị thực. Sau đó, chúng ta sẽ sử dụng các hàm chuyển đổi như Sigmoid hoặc Softmax để biến đổi thành xác suất cuối cùng.
+
+Tương tụ như bài toán hồi quy, mình cũng sẽ sử dụng một ví dụ minh hoạ đơn giản và thực hiện lại các bước tính toán của thuật toán để có thể dễ dàng hình dung nhất nhé!
+
+Giả sử chúng ta cần dự đoán một khách hàng có mua sản phẩm hay không (có = 1, không = 0) dựa trên số lần truy cập website.
+
+| Số lần truy cập (x) | Mua hàng (y) |
+|---------------------|--------------|
+| 10                  | 1            |
+| 15                  | 0            |
+| 20                  | 1            |
+| 25                  | 0            |
+| 30                  | 1            |
+
+### Khởi tạo mô hình cho bài toán
+
+Chúng ta khởi tạo mô hình ban đầu $F_0(x)$ bằng cách lấy giá trị log-odds. Với $\hat{p}$ là xác suất của lớp 1 (khách hàng mua hàng). Trong ví dụ này, có 3 người mua hàng trong tổng số 5 người, nên $\hat{p} = \frac{3}{5}$
+
+$$
+\begin{aligned}
+    \text{odds} = \frac{\hat{p}}{1 - \hat{p}}
+    = \frac{\frac{3}{5}}{1 - \frac{3}{5}}
+    = 1.5 \\
+
+    F_0(x) = \log(\text{odds}) 
+    = \log(1.5)
+    \approx 0.405
+\end{aligned}
+$$
+
+Đây là giá trị dự đoán ban đầu của chúng ta trên thang log-odds.
+
+### Tính toán Pseudo-Residual
+
+Vì đây là bài toán phân loại nhị phân nền chúng ta sẽ sử dụng Binary Cross-Entropy làm hàm mất mát, có dạng:
+$$
+L(y, \hat{y}) = -[y \log(\hat{y}) + (1 - y) \log(1 - \hat{y})]
+$$
+
+Pseudo-Residual $r_i$ là gradient âm của hàm mất mát nên ta có:
+
+$$
+\frac{\partial L}{\partial F_0} = y_i - \text{Sigmoid}(F_0(x_i))
+$$
+
+Trong đó, $\text{Sigmoid}(F_0(x_i))$ là hàm chuyển đổi từ log-odds sang xác suất. Chúng ta tính xác suất dự đoán ban đầu $\hat{p_0}$ và pseudo-residual cho từng khách hàng:
+
+$$
+\hat{p_0} = \text{Sigmoid}(F_0(x_i)) = \text{Sigmoid}(0.405) \approx 0.6
+$$
+
+Lúc này, ta có bảng dữ liệu sau:
+
+| Số lần truy cập (x) | Mua hàng (y) | Dự đoán log-odds $F_0(x)$ | Dự đoán xác suất $\hat{p_0}$ | Pseudo-Residual $r_1$ |
+|---------------------|--------------|---------------------------|------------------------------|-----------------------|
+| 10                  | 1            | 0.405                     | 0.6                           | 0.4                  |
+| 15                  | 0            | 0.405                     | 0.6                           | -0.6                 |
+| 20                  | 1            | 0.405                     | 0.6                           | 0.4                  |
+| 25                  | 0            | 0.405                     | 0.6                           | -0.6                 |
+| 30                  | 1            | 0.405                     | 0.6                           | 0.4                  |
+
+Các giá trị pseudo-residual này chính là "mục tiêu" mới mà cây quyết định tiếp theo cần học.
 
 
 
