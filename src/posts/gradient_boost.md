@@ -1,9 +1,9 @@
 ---
-title: Gradient Boosting
+title: Gradient Boosting: Giải Mã Thuật Toán Mạnh Mẽ trong Học Máy
 date: "2025-09-14"
 author: "Nguyen Dinh Phuc"
-description: " "
-tags: Ensemble learning
+description: Khám phá nguyên lý hoạt động, cơ chế tối ưu hóa và cách thức triển khai của Gradient Boosting cho cả bài toán hồi quy và phân loại.
+tags: Ensemble Learning, Học máy, Hồi quy, Phân loại, Gradient Descent
 categories: M04W02
 ---
 
@@ -326,9 +326,162 @@ Cập nhập tương tự cho toàn bộ tập dữ liệu, ta có:
 
 > Nhận xét: Các giá trị xác suất đã thay đổi. Mô hình đã được cập nhật và trở nên chính xác hơn.
 
+## 4. Code Implementation
 
+Vừa rồi, chúng ta đã tìm hiểu về thuật toán Gradient Boosting và có thể thấy rằng quá trình tính toán của nó khá phức tạp — từ việc xây dựng một weak learner cho đến giai đoạn huấn luyện và cập nhật mô hình liên tục. Tuy nhiên, khi triển khai bằng code thì mọi thứ lại trở nên đơn giản hơn rất nhiều, bởi các thư viện như scikit-learn đã hỗ trợ sẵn. Nhờ vậy, bạn hoàn toàn có thể xây dựng một mô hình Gradient Boosting chỉ với một dòng lệnh.
 
+### Chuẩn bị dữ liệu
 
+Chúng ta sẽ sử dụng bộ dữ liệu "Housing" làm tập dữ liệu huấn luyện cho Gradient Boost. Bộ dữ liệu cung cấp thông tin chi tiết về các đặc điểm của các ngôi nhà. Mục đích chính của tập dữ liệu này có thể là để phân tích mối quan hệ giữa các đặc điểm này và giá nhà, giúp dự đoán giá trị bất động sản dựa trên các yếu tố như diện tích, số phòng ngủ và các tiện ích khác. 
+
+> Các bạn có thể tải dữ liệu [tại đây](https://drive.google.com/uc?id=1qeJqFtRdjjHqExbWJcgKy0yJbczTTAE3)
+
+Đầu tiên, chúng ta import các thư viện cần thiết.
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor, GradientBoostingRegressor
+from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from ydata_profiling import ProfileReport
+```
+
+Bây giờ chúng ta đã có dữ liệu, chúng ta cần kiểm tra và đánh giá bộ dữ liệu.
+
+```python
+dataset_path = './Housing.csv'
+df = pd.read_csv(dataset_path)
+df
+df.info()
+```
+| #  | Column           | Non-Null Count | Dtype         |
+|----|------------------|----------------|---------------|
+| 0  | price            | 545 non-null   | int64         |
+| 1  | area             | 545 non-null   | int64         |
+| 2  | bedrooms         | 545 non-null   | int64         |
+| 3  | bathrooms        | 545 non-null   | int64         |
+| 4  | stories          | 545 non-null   | int64         |
+| 5  | mainroad         | 545 non-null   | object        |
+| 6  | guestroom        | 545 non-null   | object        |
+| 7  | basement         | 545 non-null   | object        |
+| 8  | hotwaterheating  | 545 non-null   | object        |
+| 9  | airconditioning  | 545 non-null   | object        |
+| 10 | parking          | 545 non-null   | int64         |
+| 11 | prefarea         | 545 non-null   | object        |
+| 12 | furnishingstatus | 545 non-null   | object        |
+
+![Hình 2. Bộ dữ liệu Housing](https://res.cloudinary.com/daijlu58e/image/upload/v1758009046/q71upkxrmy0kz7uslert.png)
+
+Bộ dữ liệu gồm 545 mẫu với 13 thuộc tính, trong đó biến mục tiêu là price và các đặc trưng còn lại đóng vai trò biến độc lập. Chúng ta có thể liệt kê số lượng giá trị phân loại (categories) trong từng cột dạng categorical (object) của DataFrame để lựa chọn chiến lược tiền xử lý phù hợp
+
+```python
+categorical_cols = df.select_dtypes(include=['object']).columns.to_list() 
+for col_name in categorical_cols: 
+    n_categories = df[col_name].nunique() 
+    print(f'Number of categories in {col_name}: {n_categories}')
+
+# Number of categories in mainroad: 2
+# Number of categories in guestroom: 2
+# Number of categories in basement: 2
+# Number of categories in hotwaterheating: 2
+# Number of categories in airconditioning: 2
+# Number of categories in prefarea: 2
+# Number of categories in furnishingstatus: 3
+```
+### Tiền xử lý dữ liệu
+
+Chúng ta cần chuyển toàn bộ các biến rời rạc về dạng dữ liệu mà mô hình học máy có thể xử lý được. OrdinalEncoder giúp gán mỗi nhãn phân loại một giá trị số nguyên.
+
+```python
+categorical_cols = df.select_dtypes(include=['object']).columns.to_list()
+
+ordinal_encoder = OrdinalEncoder()
+encoded_categorical_cols = ordinal_encoder.fit_transform(
+    df[categorical_cols]
+)
+encoded_categorical_df = pd.DataFrame(
+    encoded_categorical_cols,
+    columns=categorical_cols
+)
+numerical_df = df.drop(categorical_cols, axis=1)
+encoded_df = pd.concat(
+    [numerical_df, encoded_categorical_df], axis=1
+)
+```
+![Hình 3. Bộ dữ liệu Housing sau bước Encoding](https://res.cloudinary.com/daijlu58e/image/upload/v1758012785/wi8kxcodvrnwq09oxoum.png)
+
+Do các biến số có khoảng giá trị khác nhau (ví dụ: area rất lớn so với parking) nên ta cần chuẩn hóa dữ liệu
+
+```python
+normalizer = StandardScaler()
+dataset_arr = normalizer.fit_transform(encoded_df)
+
+# array([[ 4.56636513,  1.04672629,  1.40341936, ...,  1.4726183 ,
+#          1.80494113, -1.40628573],
+#        [ 4.00448405,  1.75700953,  1.40341936, ...,  1.4726183 ,
+#         -0.55403469, -1.40628573],
+#        [ 4.00448405,  2.21823241,  0.04727831, ..., -0.67906259,
+#          1.80494113, -0.09166185],
+#        ...,
+#        [-1.61432675, -0.70592066, -1.30886273, ..., -0.67906259,
+#         -0.55403469,  1.22296203],
+#        [-1.61432675, -1.03338891,  0.04727831, ..., -0.67906259,
+#         -0.55403469, -1.40628573],
+#        [-1.61432675, -0.5998394 ,  0.04727831, ..., -0.67906259,
+#         -0.55403469,  1.22296203]])
+```
+
+### Khởi tạo và huấn luyện mô hình
+
+Sau khi dữ liệu đã được xử lý, chúng ta sẽ chia chúng ra thành các tâp train và test theo tỷ lệ 7:3
+```python
+X, y = dataset_arr[:, 1:], dataset_arr[:, 0]
+
+test_size = 0.3
+random_state = 1
+is_shuffle = True
+X_train, X_val, y_train, y_val = train_test_split(
+    X, y, test_size=test_size, random_state=random_state, shuffle=is_shuffle
+)
+```
+
+Chúng ta sẽ khởi tạo mô hình **Gradient Boosting Regressor**. Ở đây, tham số `random_state` được truyền vào để đảm bảo kết quả tái lập, còn `learning_rate=0.1` kiểm soát tốc độ học, tức là mức độ mà mỗi cây mới đóng góp vào mô hình tổng thể. Sau khi khởi tạo, mô hình được huấn luyện bằng cách gọi `fit(X_train, y_train)`.
+
+```python
+regressor = GradientBoostingRegressor(
+    random_state=random_state, learning_rate=0.1
+)
+regressor.fit(X_train, y_train)
+```
+
+### Đánh giá trên tập test
+
+```python
+mae = mean_absolute_error(y_val, y_pred)
+mse = mean_squared_error(y_val, y_pred)
+
+print('Evaluation results on validation set:')
+print(f'Mean Absolute Error: {mae}')
+print(f'Mean Squared Error: {mse}')
+
+# Evaluation results on validation set:
+# Mean Absolute Error: 0.4516626127750995
+# Mean Squared Error: 0.39610445936979427
+```
+
+> Nhận xét: Kết quả đánh giá cho mô hình trên tập test cho thấy mô hình dự đoán khá tốt, sai số trung bình nhỏ
+
+![Hình 4. Kết quả dự đoán của mô hình sau huấn luyện](https://res.cloudinary.com/daijlu58e/image/upload/v1758017967/uxquqp259aensvid4xyo.png)
+
+## 5. Tài liệu tham khảo
+* [All You Need to Know about Gradient Boosting Algorithm − Part 1. Regression](https://towardsdatascience.com/all-you-need-to-know-about-gradient-boosting-algorithm-part-1-regression-2520a34a502/)
+* [All You Need to Know about Gradient Boosting Algorithm − Part 2. Classification](https://towardsdatascience.com/all-you-need-to-know-about-gradient-boosting-algorithm-part-2-classification-d3ed8f56541e/) 
+* [Gradient Boosting from Theory to Practice (Part 1)](https://towardsdatascience.com/gradient-boosting-from-theory-to-practice-part-1-940b2c9d8050/) 
+* [Gradient Boosting from Theory to Practice (Part 2)](https://towardsdatascience.com/gradient-boosting-from-theory-to-practice-part-2-25c8b7ca566b/) 
 
 
 
