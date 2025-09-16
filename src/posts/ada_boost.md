@@ -27,7 +27,7 @@ Các mô hình Boosting tăng cường ảnh hưởng của các mô hình có h
 
 Các thuật toán Boosting phổ biến bao gồm Gradient Boosting và XGBoost.
 
-![Hình 3. Kỹ thuật Boosting](https://miro.medium.com/1*4XuD6oRrgVqtaSwH-cu6SA.png)
+![Hình 3. Kỹ thuật Boosting](https://res.cloudinary.com/dpppq2b77/image/upload/v1758030076/boosting_uc5x2f.png)
 
 ## III. AdaBoost (Adaptive Boosting)
 

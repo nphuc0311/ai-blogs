@@ -32,7 +32,7 @@ Khác với Random Forest (bagging), Gradient Boosting thuộc nhóm **boosting*
 
 ### 2. Công thức cơ bản
 
-Cho tập dữ liệu $( D = \{ (x*i, y_i) \}*{i=1}^n )$.
+Cho tập dữ liệu $D = \{ (x_i, y_i) \}_{i=1}^n$.
 
 Mục tiêu: tối thiểu hóa hàm mất mát $( L )$:
 
@@ -48,7 +48,7 @@ Trong đó:
 
 $$
 \begin{aligned}
-    &Obj = \sum*{i=1}^n l(y_i, \hat{y}\_i) + \sum*{k=1}^K \Omega(f_k) \\
+    &Obj = \sum_{i=1}^n l(y_i, \hat{y_i}) + \sum_{k=1}^K \Omega(f_k) \\
     &\Omega(f) = \gamma T + \frac{1}{2}\lambda ||w||^2
 \end{aligned}
 $$
