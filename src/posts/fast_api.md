@@ -436,4 +436,4 @@ Chúng ta đã cùng tìm hiểu fastapi theo hướng từng module chức năn
 ![](https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png)  
 [Tài liệu chính thức của FastAPI](https://fastapi.tiangolo.com/)
 
-Truy cập thêm các blog mới nhất của chúng tôi, [tại đây](https://ai-blogs-seven.vercel.app/)
+#### Truy cập thêm các blog mới nhất của chúng tôi, [tại đây](https://ai-blogs-seven.vercel.app/)
