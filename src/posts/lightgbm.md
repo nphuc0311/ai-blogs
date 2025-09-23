@@ -129,6 +129,7 @@ $$
 
 ### Kết quả
 
+
 Sau $T$ vòng:
 $$
 F(x) = \sum_{t=1}^{T} \eta \cdot f_t(x)
