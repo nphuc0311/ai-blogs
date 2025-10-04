@@ -2,8 +2,9 @@
 title: "Chẩn đoán bệnh tim mạch với Ensemble Learning"
 date: "2025-10-02"
 author: "Nguyễn Đình Phúc, Vũ Ngọc Linh, Nguyễn Phúc Định Quyền, Nguyễn Trần Ngọc Thịnh, Trần Đức Quân"
-description: "Hướng dẫn cơ bản về Gradio, một thư viện Python mã nguồn mở giúp tạo website và bản demo tương tác cho mô hình AI mà không cần nhiều kiến thức front-end."
-tags: gradio, ai, python, tutorial, web
+description: "Hướng dẫn chẩn đoán bệnh tim trên tập dữ liệu UCI Heart Disease bằng các mô hình ensemble."
+
+tags: Machine Learning, Heart Disease, Ensemble Learning, Feature Engineering, SMOTE, Optuna, Data Preprocessing, Healthcare AI, UCI Dataset
 categories: Project
 ---
 
@@ -121,6 +122,8 @@ Bên cạnh đó, CatBoost còn áp dụng nhiều kỹ thuật tối ưu khác 
 
 Bộ dữ liệu UCI Heart Disease biểu diễn thông tin lâm sàng của một bệnh nhân với 13 đặc trưng ban đầu, bao gồm cả dạng số và dạng phân loại. Đặc trưng mục tiêu là biến “target”, biểu thị tình trạng bệnh nhân mắc hay không mắc bệnh tim. Một số cột có thể chứa giá trị không hợp lệ hoặc không thể chuyển đổi thành số, do đó nhóm đã chuyển đổi chúng sang định dạng số và thay thế các giá trị không hợp lệ bằng giá trị khuyết (NaN) để xử lý sau. Bên cạnh đó, biến mục tiêu được chuẩn hóa về dạng nhị phân, giúp mô hình hiểu rõ hơn mối quan hệ phân loại giữa hai nhóm “có bệnh” và “không bệnh”.
 
+> Các bạn có thể tải dũ liệu gốc [tại đây](https://archive.ics.uci.edu/dataset/45/heart+disease)
+
 Nhóm chia dữ liệu thành ba tập riêng biệt: huấn luyện, kiểm định và kiểm tra. Việc chia tập tuân theo tỷ lệ 80–10–10 và có sử dụng chiến lược phân tầng theo biến mục tiêu, đảm bảo rằng tỷ lệ giữa hai nhóm bệnh/không bệnh được giữ nguyên trong mọi tập, tránh tình trạng sai lệch phân bố dữ liệu trong quá trình đánh giá mô hình.
 
 Sau khi chia dữ liệu, nhóm xử lý các đặc trưng bao gồm: đặc trưng số và đặc trưng phân loại.
@@ -166,6 +169,48 @@ Kết quả là bộ dữ liệu sau SMOTE có tỷ lệ hai lớp cân bằng h
 ![Hình 11. Dữ liệu trước và sau khi áp dụng SMOTE](https://res.cloudinary.com/daijlu58e/image/upload/z6moablilroyxlnvj03a.png)
 
 ### 2. Huấn luyện và tối ưu hoá mô hình với Optuna.
+
+Nhóm tiến hành huấn luyện sáu mô hình học máy gồm **AdaBoost (ADB), Random Forest (RF), Gradient Boosting (GB), LightGBM (LGBM), XGBoost (XGB) và CatBoost (CAT)** trên năm biến thể của bộ dữ liệu **(raw, dt, fe, fe_dt, fe_sm)** nhằm đánh giá ảnh hưởng của các bước xử lý đặc trưng đến hiệu suất dự đoán.
+
+Để đạt được cấu hình siêu tham số tối ưu cho từng mô hình, nhóm sử dụng Optuna — một thư viện tối ưu hoá hiện đại dựa trên thuật toán Bayesian Optimization kết hợp với Tree-structured Parzen Estimator (TPE). Phương pháp này giúp tìm kiếm không gian siêu tham số một cách thông minh, tập trung vào các vùng tiềm năng có khả năng mang lại kết quả cao nhất, thay vì duyệt toàn bộ như Grid Search truyền thống.
+
+## IV. Kết quả thực nghiệm
+
+Nhóm đánh giá hiệu suất của sáu mô hình học máy — bao gồm AdaBoost (ADB), Random Forest (RF), Gradient Boosting (GB), LightGBM (LGBM), XGBoost (XGB) và CatBoost (CAT) — khi được huấn luyện trên năm biến thể của bộ dữ liệu: raw, dt, fe, fe_dt, và fe_sm. Các giá trị thể hiện độ chính xác trên tập validation và test, được thể hiện trong bảng sau:
+
+| Model / Dataset | raw                 | dt                  | fe                  | fe_dt               | fe_sm               |
+| --------------- | ------------------- | ------------------- | ------------------- | ------------------- | ------------------- |
+| **ADB**         | 0.933 / 0.871       | **0.967 / 0.839**   | **0.967** / 0.839   | **0.967** / 0.839   | **0.967 / 0.839**   |
+| **RF**          | **0.933** / 0.871   | 0.933 / 0.806       | 0.900 / 0.806       | 0.933 / 0.839       | **0.967** / 0.806   |
+| **GB**          | 0.900 / 0.806       | 0.933 / 0.839       | 0.933 / 0.871       | 0.933 / 0.806       | **0.967** / 0.806   |
+| **LGBM**        | 0.867 / 0.871       | 0.900 / 0.806       | 0.900 / 0.806       | **0.967 / 0.871**   | 0.933 / 0.774       |
+| **XGB**         | **0.933 / 0.839**   | 0.900 / 0.806       | 0.900 / **0.903**   | 0.933 / 0.806       | 0.933 / 0.774       |
+| **CAT**         | 0.900 / 0.806       | **0.967 / 0.839**   | 0.933 / 0.839       | 0.933 / 0.839       | 0.900 / 0.774       |
+
+Nhìn chung, các mô hình đạt độ chính xác cao và ổn định, phần lớn dao động trong khoảng **0.90–0.97** trên cả hai tập đánh giá. Điều này cho thấy quy trình tiền xử lý và lựa chọn đặc trưng đã giúp dữ liệu có chất lượng tốt, hỗ trợ huấn luyện hiệu quả cho hầu hết các thuật toán. Cụ thể:
+
+* **AdaBoost (ADB)** thể hiện hiệu suất nổi bật và ổn định nhất, đạt kết quả cao nhất ở hầu hết các bộ dữ liệu với giá trị **0.967** trên tập validation, trong khi độ chính xác trên test dao động quanh **0.839**.
+
+* **Random Forest (RF)** cho kết quả khá cạnh tranh, đặc biệt khi áp dụng trên bộ **fe_sm**, đạt **0.967** trên validation. Tuy nhiên, độ chính xác trên test vẫn thấp hơn một chút so với ADB.
+
+* **Gradient Boosting (GB)** có xu hướng tương tự RF, với hiệu suất tốt hơn khi dữ liệu được cân bằng hoặc mở rộng (ở fe_sm đạt **0.967**).
+
+* **LightGBM (LGBM)** thể hiện hiệu suất cao nhất trên bộ fe_dt với **0.967 / 0.871**, cho thấy việc kết hợp Feature Engineering và lựa chọn đặc trưng bằng Decision Tree giúp LGBM học tốt hơn.
+
+* **XGBoost (XGB)** có điểm mạnh riêng ở khả năng tổng quát trên test — đặc biệt ở fe, nơi mô hình đạt giá trị cao nhất là **0.903**. Điều này cho thấy XGBoost tận dụng tốt các đặc trưng mở rộng được tạo ra từ Feature Engineering.
+
+* **CatBoost (CAT)** có hiệu suất khá ổn định, nhưng không vượt trội. Kết quả cao nhất của mô hình **(0.967 / 0.839 trên dt)** chứng tỏ nó hưởng lợi rõ rệt từ dữ liệu được chọn lọc đặc trưng tốt.
+
+## V. Tổng kết
+
+Các mô hình ensemble learning đã cho thấy sự hiệu quả trong việc chẩn đoán bệnh tim, đặc biệt khi được kết hợp với các bước xử lý và tối ưu dữ liệu phù hợp. Kết quả thực nghiệm chỉ ra rằng việc feature engineering, lựa chọn đặc trưng bằng Decision Tree, và cân bằng dữ liệu bằng SMOTE có tác động rõ rệt đến hiệu suất mô hình, giúp nâng cao độ chính xác và khả năng tổng quát hóa.
+
+Trong số các mô hình được khảo sát, AdaBoost thể hiện hiệu năng ổn định và cao nhất trên nhiều bộ dữ liệu, trong khi LightGBM và XGBoost cũng cho thấy tiềm năng lớn khi kết hợp với dữ liệu được mở rộng hoặc chọn lọc hợp lý. Việc sử dụng Optuna để tối ưu siêu tham số giúp các mô hình đạt được cấu hình tốt nhất mà không cần tốn quá nhiều công sức thủ công.
+
+Nhìn chung, kết quả nghiên cứu khẳng định rằng hiệu quả của mô hình học máy trong y học không chỉ phụ thuộc vào thuật toán, mà còn phụ thuộc mạnh mẽ vào chất lượng và chiến lược xử lý dữ liệu.
+
+> Toàn bộ mã nguồn bọn mình để ở [đây](https://github.com/QuyeN1104/HeartDiseasePrediction) nhé
+
 
 
 
