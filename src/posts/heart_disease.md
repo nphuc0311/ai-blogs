@@ -168,7 +168,7 @@ Kết quả là bộ dữ liệu sau SMOTE có tỷ lệ hai lớp cân bằng h
 
 ![Hình 11. Dữ liệu trước và sau khi áp dụng SMOTE](https://res.cloudinary.com/daijlu58e/image/upload/z6moablilroyxlnvj03a.png)
 
-### 2. Huấn luyện và tối ưu hoá mô hình với Optuna.
+### 3. Huấn luyện và tối ưu hoá mô hình với Optuna.
 
 Nhóm tiến hành huấn luyện sáu mô hình học máy gồm **AdaBoost (ADB), Random Forest (RF), Gradient Boosting (GB), LightGBM (LGBM), XGBoost (XGB) và CatBoost (CAT)** trên năm biến thể của bộ dữ liệu **(raw, dt, fe, fe_dt, fe_sm)** nhằm đánh giá ảnh hưởng của các bước xử lý đặc trưng đến hiệu suất dự đoán.
 
