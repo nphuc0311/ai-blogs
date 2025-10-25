@@ -3,8 +3,8 @@ title: Gradient Boosting: Giải Mã Thuật Toán Mạnh Mẽ trong Học Máy
 date: "2025-09-14"
 author: "Nguyen Dinh Phuc"
 description: Khám phá nguyên lý hoạt động, cơ chế tối ưu hóa và cách thức triển khai của Gradient Boosting cho cả bài toán hồi quy và phân loại.
-tags: Ensemble Learning, Học máy, Hồi quy, Phân loại, Gradient Descent
-categories: M04W02
+tags: ensemble-learning, machine-learning, regression, classification, gradient-descent, gradient-boosting
+categories: Machine Learning
 ---
 
 Gradient Boosting là một thuật toán mạnh mẽ không thể bỏ qua trong các bài toán xử lý dữ liệu dạng bảng. Với khả năng khám phá các quan hệ phi tuyến phức tạp, nó hoàn toàn giải quyết được các vấn đề phổ biến trong các kiểu dữ liệu dạng bảng như giá trị thiếu, ngoại lai hay dữ liệu phân loại có nhiều giá trị.

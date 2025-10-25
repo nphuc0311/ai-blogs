@@ -4,7 +4,7 @@ date: "2025-10-02"
 author: "Nguyễn Đình Phúc, Vũ Ngọc Linh, Nguyễn Phúc Định Quyền, Nguyễn Trần Ngọc Thịnh, Trần Đức Quân"
 description: "Hướng dẫn chẩn đoán bệnh tim trên tập dữ liệu UCI Heart Disease bằng các mô hình ensemble."
 
-tags: Machine Learning, Heart Disease, Ensemble Learning, Feature Engineering, SMOTE, Optuna, Data Preprocessing, Healthcare AI, UCI Dataset
+tags: Machine Learning, Heart Disease, Ensemble Learning, Feature Engineering, SMOTE, Optuna, Data Preprocessing, UCI Dataset
 categories: Project
 ---
 
