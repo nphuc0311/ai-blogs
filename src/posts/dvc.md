@@ -4,6 +4,7 @@ date: "2025-10-25"
 author: "Nguyen Dinh Phuc"
 description: "Hướng dẫn chi tiết cách sử dụng DVC để quản lý dữ liệu, pipeline và mô hình trong các dự án Machine Learning. Từ lý thuyết đến thực hành với ví dụ Linear Regression."
 tags: data-version-control, dvc, machine-learning, mlops
+categories: MLOps
 ---
 
 ## I. Giới thiệu
